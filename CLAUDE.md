@@ -24,7 +24,7 @@ Later phases (not yet decided): rebuild / port to PC (likely MonoGame or FNA).
 
 - Root: `GameInfo.xml` (UTF-16; released 24 Aug 2009), `GameInfo.bin`, `DashboardIcon.png`, `TitleImage.png`.
 - `584E07D1/PhysCoop.exe`: the game (internal name "PhysCoop"). It targets **XNA 3.x** on .NET CF 2.0 (`v2.0.50727`) and uses GamerServices, Storage, Audio and System.Xml.Serialization.
-- `584E07D1/FarseerProject.dll`: the **Farseer Physics** engine (open source, so this can likely be replaced with the matching upstream release).
+- `584E07D1/FarseerProject.dll` (AssemblyVersion 2.0.0.0): the **Farseer Physics** engine (open source, so this can likely be replaced with the matching upstream release).
 - `Content/`: `.xnb` files with the header `XNBx` v3 and flag `0x80`, meaning Xbox platform, LZX-compressed. Includes models, textures, deferred-lighting/shadow effects, and fonts. The game uses the XNA "GameStateManagement" sample (`ScreenManagerResources`).
 - `Content/audio`, `Content/ScreenManagerResources/menuAudio`: XACT banks (`.xgs`/`.xsb`/`.xwb`).
 - `Content/stages/001–100.xml`: plain XmlSerializer `StageData` files (wall polygons as `Vector2` arrays, ...). `stages/mapimages/` holds a preview `.xnb` for each stage.
@@ -32,6 +32,8 @@ Later phases (not yet decided): rebuild / port to PC (likely MonoGame or FNA).
 ## Tooling
 
 - Shells: PowerShell (default) and Git Bash. Python 3.13 and .NET SDK 10 are installed.
+- ILSpy is a repo-local dotnet tool (`dotnet-tools.json`, ilspycmd 11.1). Run `dotnet tool restore`, then regenerate `decomp/` with:
+  `dotnet ilspycmd -p -o decomp/PhysCoop -r extracted/584E07D1 extracted/584E07D1/PhysCoop.exe` (same for `FarseerProject.dll`).
 - Prefer writing small, reproducible Python scripts in `tools/` over one-off GUI tools, so every extraction step can be re-run.
 
 ## Planned layout
@@ -50,3 +52,9 @@ docs/         Notes on formats, game structure, findings
 - Never edit the original package files; all outputs must be regenerable from them via `tools/`.
 - Record format discoveries (STFS quirks, XNB reader types, custom map formats) in `docs/`.
 - Decompiled code: keep ILSpy's raw output committed first, then make cleanup/renaming changes as separate commits so diffs stay reviewable.
+
+## Decompiled code (`decomp/`)
+
+- `decomp/PhysCoop/`: the game, about 9k lines. Namespaces are `PhysCoop` (gameplay plus GameStateManagement screens), `PhysCoop.Oak` (`Draw2D`, from the developer's own "Oak" engine), and `BallGame_Editor` (`StageData`, the stage XML schema, apparently left over from an earlier "BallGame" project).
+- `decomp/FarseerProject/`: Farseer Physics 2.0, about 11k lines.
+- Known decompiler artifacts: 8 `goto IL_00bc` in `PhysCoop/PhysCoop/InputState.cs`. The generated csprojs target `net35` with broken `HintPath`s, so they won't build as-is.

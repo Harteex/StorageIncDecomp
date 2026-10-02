@@ -1,0 +1,224 @@
+using System;
+using System.Collections.Generic;
+using FarseerGames.FarseerPhysics.Collisions;
+using FarseerGames.FarseerPhysics.Interfaces;
+using Microsoft.Xna.Framework;
+
+namespace FarseerGames.FarseerPhysics.Controllers;
+
+public class FluidDragController : Controller
+{
+	public delegate void EntryEventHandler(Geom geom);
+
+	private float _area;
+
+	private Vector2 _axis = Vector2.Zero;
+
+	private Vector2 _buoyancyForce = Vector2.Zero;
+
+	private Vector2 _centroid = Vector2.Zero;
+
+	private Vector2 _centroidVelocity;
+
+	private float _density;
+
+	private float _dragArea;
+
+	private IFluidContainer _fluidContainer;
+
+	private Dictionary<Geom, bool> _geomInFluidList;
+
+	private List<Geom> _geomList;
+
+	private Vector2 _gravity = Vector2.Zero;
+
+	private float _linearDragCoefficient;
+
+	private Vector2 _linearDragForce = Vector2.Zero;
+
+	private float _max;
+
+	private float _min;
+
+	private float _partialMass;
+
+	private float _rotationalDragCoeficient;
+
+	private float _rotationalDragTorque;
+
+	private float _totalArea;
+
+	private Vector2 _totalForce;
+
+	private Vector2 _vert;
+
+	private Vertices _vertices;
+
+	public EntryEventHandler Entry;
+
+	public float Density
+	{
+		get
+		{
+			return _density;
+		}
+		set
+		{
+			_density = value;
+		}
+	}
+
+	public float LinearDragCoefficient
+	{
+		get
+		{
+			return _linearDragCoefficient;
+		}
+		set
+		{
+			_linearDragCoefficient = value;
+		}
+	}
+
+	public float RotationalDragCoefficient
+	{
+		get
+		{
+			return _rotationalDragCoeficient;
+		}
+		set
+		{
+			_rotationalDragCoeficient = value;
+		}
+	}
+
+	public FluidDragController()
+	{
+		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
+		_geomList = new List<Geom>();
+		_geomInFluidList = new Dictionary<Geom, bool>();
+	}
+
+	public void Initialize(IFluidContainer fluidContainer, float density, float linearDragCoefficient, float rotationalDragCoefficient, Vector2 gravity)
+	{
+		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
+		_fluidContainer = fluidContainer;
+		_density = density;
+		_linearDragCoefficient = linearDragCoefficient;
+		_rotationalDragCoeficient = rotationalDragCoefficient;
+		_gravity = gravity;
+		_vertices = new Vertices();
+	}
+
+	public void AddGeom(Geom geom)
+	{
+		_geomList.Add(geom);
+		_geomInFluidList.Add(geom, value: false);
+	}
+
+	public override void Validate()
+	{
+	}
+
+	public void Reset()
+	{
+		_geomInFluidList.Clear();
+		for (int i = 0; i < _geomList.Count; i++)
+		{
+			_geomInFluidList.Add(_geomList[i], value: false);
+		}
+	}
+
+	public override void Update(float dt)
+	{
+		//IL_00b3: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00b8: Unknown result type (might be due to invalid IL or missing references)
+		for (int i = 0; i < _geomList.Count; i++)
+		{
+			_totalArea = _geomList[i].localVertices.GetArea();
+			if (!_fluidContainer.Intersect(_geomList[i].aabb))
+			{
+				continue;
+			}
+			FindVerticesInFluid(_geomList[i]);
+			if (_vertices.Count < 3)
+			{
+				continue;
+			}
+			_area = _vertices.GetArea();
+			if ((double)_area < 1E-06)
+			{
+				continue;
+			}
+			_centroid = _vertices.GetCentroid(_area);
+			CalculateBuoyancy();
+			CalculateDrag(_geomList[i]);
+			Vector2.Add(ref _buoyancyForce, ref _linearDragForce, ref _totalForce);
+			_geomList[i].body.ApplyForceAtWorldPoint(ref _totalForce, ref _centroid);
+			_geomList[i].body.ApplyTorque(_rotationalDragTorque);
+			if (!_geomInFluidList[_geomList[i]])
+			{
+				_geomInFluidList[_geomList[i]] = true;
+				if (Entry != null)
+				{
+					Entry(_geomList[i]);
+				}
+			}
+		}
+	}
+
+	private void FindVerticesInFluid(Geom geom)
+	{
+		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
+		_vertices.Clear();
+		for (int i = 0; i < geom.worldVertices.Count; i++)
+		{
+			_vert = geom.worldVertices[i];
+			if (_fluidContainer.Contains(ref _vert))
+			{
+				_vertices.Add(_vert);
+			}
+		}
+	}
+
+	private void CalculateBuoyancy()
+	{
+		//IL_0003: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
+		_buoyancyForce = -_gravity * _area * _density;
+	}
+
+	private void CalculateDrag(Geom geom)
+	{
+		//IL_00f7: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00fc: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0101: Unknown result type (might be due to invalid IL or missing references)
+		geom.body.GetVelocityAtWorldPoint(ref _centroid, out _centroidVelocity);
+		_axis.X = 0f - _centroidVelocity.Y;
+		_axis.Y = _centroidVelocity.X;
+		if (_axis.X != 0f || _axis.Y != 0f)
+		{
+			_axis.Normalize();
+		}
+		_vertices.ProjectToAxis(ref _axis, out _min, out _max);
+		_dragArea = Math.Abs(_max - _min);
+		_partialMass = geom.body.mass * (_area / _totalArea);
+		_linearDragForce = -0.5f * _density * _dragArea * _linearDragCoefficient * _partialMass * _centroidVelocity;
+		_rotationalDragTorque = (0f - geom.body.AngularVelocity) * _rotationalDragCoeficient * _partialMass;
+	}
+}
