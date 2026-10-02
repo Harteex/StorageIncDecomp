@@ -33,6 +33,7 @@ Later phases (not yet decided): rebuild / port to PC (likely MonoGame or FNA).
 
 - Shells: PowerShell (default) and Git Bash. Python 3.13 and .NET SDK 10 are installed.
 - Convert XNB content with `python tools/xnb_extract.py` (defaults: `extracted/584E07D1/Content` → `assets/`). Format notes are in `docs/xnb.md`. Xbox GPU data (textures, vertex/index buffers) is big-endian.
+- Extract audio with `python tools/xwb_extract.py` (same defaults, XMA2 → WAV, needs ffmpeg; named by XSB cue). Notes are in `docs/audio.md`.
 - ILSpy is a repo-local dotnet tool (`dotnet-tools.json`, ilspycmd 11.1). Run `dotnet tool restore`, then regenerate `decomp/` with:
   `dotnet ilspycmd -p -o decomp/PhysCoop -r extracted/584E07D1 extracted/584E07D1/PhysCoop.exe` (same for `FarseerProject.dll`).
 - Prefer writing small, reproducible Python scripts in `tools/` over one-off GUI tools, so every extraction step can be re-run.
@@ -43,7 +44,7 @@ Later phases (not yet decided): rebuild / port to PC (likely MonoGame or FNA).
 tools/        Python/C# helper scripts (STFS extractor, XNB unpacker, ...)
 extracted/    Raw files pulled out of the STFS package (generated; reproducible from tools/)
 decomp/       ILSpy output (C# project) — the main working area
-assets/       Converted content: PNG textures/fonts, OBJ models, .fxo effects (generated, gitignored)
+assets/       Converted content: PNG textures/fonts, OBJ models, .fxo effects, WAV audio (generated, gitignored)
 docs/         Notes on formats, game structure, findings
 ```
 
