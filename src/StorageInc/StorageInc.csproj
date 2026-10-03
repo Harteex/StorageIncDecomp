@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Storage Inc (internal name PhysCoop), ported from the decompiled XNA 3.0 Xbox build to FNA. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>StorageInc</AssemblyName>
+    <RootNamespace>PhysCoop</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\external\FNA\FNA.Core.csproj" />
+    <ProjectReference Include="..\FarseerPhysics\FarseerPhysics.csproj" />
+  </ItemGroup>
+  <!-- FNA native libraries (fetched by tools/fetch_fnalibs.py, gitignored). -->
+  <ItemGroup>
+    <None Include="..\..\fnalibs\x64\*.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+</Project>

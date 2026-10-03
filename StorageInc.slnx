@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/external/" />
+  <Folder Name="/external/FNA/">
+    <Project Path="external/FNA/FNA.Core.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/FarseerPhysics/FarseerPhysics.csproj" />
+    <Project Path="src/StorageInc/StorageInc.csproj" />
+  </Folder>
+</Solution>

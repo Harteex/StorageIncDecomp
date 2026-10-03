@@ -9,3 +9,10 @@ assets/
 
 __pycache__/
 *.pyc
+
+# FNA native libraries (tools/fetch_fnalibs.py)
+fnalibs/
+
+# .NET build output
+bin/
+obj/

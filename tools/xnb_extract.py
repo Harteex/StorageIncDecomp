@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert Xbox 360 XNA 3.x .xnb content into editable files.
+"""Convert Xbox 360 XNA 3.0 .xnb content into editable files.
 
 Usage:
     python tools/xnb_extract.py [content_dir] [out_dir] [--raw]
@@ -26,7 +26,7 @@ from lzx import decompress_xnb_payload  # noqa: E402
 
 SURFACE_COLOR, SURFACE_DXT1, SURFACE_DXT3, SURFACE_DXT5 = 1, 28, 30, 32
 
-# XNA 3.x VertexElementFormat -> (struct format, component count)
+# XNA 3.0 VertexElementFormat -> (struct format, component count)
 VERTEX_FORMATS = {0: (">f", 1), 1: (">2f", 2), 2: (">3f", 3), 3: (">4f", 4), 4: (">4B", 4)}
 VERTEX_FORMAT_SIZES = {0: 4, 1: 8, 2: 12, 3: 16, 4: 4, 5: 4, 6: 4, 7: 8, 8: 4, 9: 4, 10: 8,
                        11: 4, 12: 8, 13: 4, 14: 4, 15: 4, 16: 8}

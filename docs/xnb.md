@@ -1,4 +1,4 @@
-# XNB content notes (Xbox 360, XNA 3.x)
+# XNB content notes (Xbox 360, XNA 3.0)
 
 Implemented in `tools/lzx.py` and `tools/xnb_extract.py`. Run:
 
@@ -31,7 +31,7 @@ Textures are stored linear (not tiled) in the XNB.
 - `SpriteFontReader`: Texture2D, List<Rectangle> glyphs, List<Rectangle> cropping, List<char> chars, i32 line spacing, f32 spacing, List<Vector3> kerning, bool + char default. Value-type list elements have no type id.
   - `FrameRateFont`: DXT3, digits only.
   - `OakEngineFont64`: Color, the Xbox controller button icons plus text.
-- `ModelReader` (XNA 3.1 layout):
+- `ModelReader` (XNA 3.0 layout):
   - bones (name object + Matrix), then hierarchy (parent ref, child refs). A bone ref is a u8 if there are 255 or fewer bones, else u32, and 0 means null.
   - **vertex declaration table** (u32 count + objects).
   - meshes: name, parent bone, bounding sphere, VertexBuffer, IndexBuffer, tag, then parts.
