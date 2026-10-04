@@ -6,6 +6,7 @@ The game was built with **XNA Game Studio 3.0** for Xbox 360 (`Microsoft.Xna.Fra
 
     git submodule update --init --recursive   # external/FNA (+ its own submodules)
     python tools/fetch_fnalibs.py             # native libs -> fnalibs/ (gitignored)
+    python tools/build_content.py             # Xbox content -> build/Content (gitignored)
     dotnet build StorageInc.slnx
 
 - `src/StorageInc` is the game. It started as a copy of `decomp/PhysCoop` and targets net8.0, referencing `external/FNA/FNA.Core.csproj`.
@@ -60,9 +61,22 @@ These enums have the same values in 3.0 and 4.0, so the remaining raw casts are 
   - Gamer pictures are coloured placeholders.
 - **`src/StorageInc/Compat/Storage.cs`:** XNA 3 `OpenContainer()` and `container.Path` on real directories, stored under `Documents/SavedGames/<title>/AllPlayers` (XDG data dir elsewhere). `TitleLocation` is the executable's directory.
 
+## Content
+
+FNA rejects XNB version 3. Its texture reader can byte-swap Xbox data, but its model and vertex-buffer readers can't, so the Xbox content can't be loaded as-is. `tools/build_content.py` instead re-encodes everything as **XNA 4.0 Windows XNBs** (version 5, platform `w`, uncompressed) into `build/Content`. The csproj copies that folder to `Content/` next to the executable, so the game's `Content.Load` calls work unchanged.
+
+| Type | Conversion |
+|---|---|
+| Texture2D (157) | SurfaceFormat 3.0 → 4.0 (Color 1→0, Dxt1 28→4, Dxt3 30→5, Dxt5 32→6). Color pixels ARGB→RGBA, DXT 16-bit words byte-swapped. All mip levels kept. |
+| SpriteFont (2) | Glyph sheet as above, tables copied. |
+| Model (11) | The XNA 3.0 per-mesh buffers and declaration table become XNA 4.0 shared buffers, one vertex buffer per part (`VertexOffset` 0, declaration embedded), with big-endian vertex and index data swapped. `VertexElementUsage` is renumbered (3.0 TextureCoordinate 5 → 4.0 2). `VertexDeclarationReader` must be listed in the XNB header even though it's read "raw". |
+| stages/*.xml | Copied as-is. |
+| Effects (5), XACT (6) | Not converted. See below. |
+
+`dotnet run --project tools/ContentCheck` loads every converted XNB through FNA. For models it reads the vertices back and checks their bounds and that normals are unit length. Current result: 170/170 load, and all normals are unit length.
+
 ## Still to do
 
-1. **Content loading.** The original XNBs are Xbox XNA 3.0 files, which FNA cannot load. Options: convert them to XNA 4 PC XNBs, or load the PNG/model assets that `tools/` already produces.
-2. **Effects.** `Deferred1Scene`, `Deferred2Lights`, `Deferred3Final`, `ShadowMap` and `Brightness` must be rewritten in HLSL and compiled for FNA (fx_2_0). The parameter and technique names are known from the code.
-3. **Audio.** The XACT banks are Xbox (big-endian, XMA). FNA's XACT needs PC banks, so they must be rebuilt as PCM or ADPCM.
-4. **Paths.** Content paths use `\\`, and the stage XML is read from `Content/stages`. These need checking on Linux and macOS.
+1. **Effects.** `Deferred1Scene`, `Deferred2Lights`, `Deferred3Final`, `ShadowMap` and `Brightness` must be rewritten in HLSL and compiled for FNA (fx_2_0). The parameter and technique names are known from the code.
+2. **Audio.** The XACT banks are Xbox (big-endian, XMA). FNA's XACT needs PC banks, so they must be rebuilt as PCM or ADPCM.
+3. **Paths.** Content paths use `\\`, and the stage XML is read from `Content/stages`. These need checking on Linux and macOS.

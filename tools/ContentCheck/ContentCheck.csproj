@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Loads every converted XNB in build/Content through FNA's ContentManager. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\external\FNA\FNA.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\fnalibs\x64\*.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+</Project>

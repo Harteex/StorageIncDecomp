@@ -10,6 +10,9 @@ assets/
 __pycache__/
 *.pyc
 
+# Converted PC content (tools/build_content.py)
+build/
+
 # FNA native libraries (tools/fetch_fnalibs.py)
 fnalibs/
 

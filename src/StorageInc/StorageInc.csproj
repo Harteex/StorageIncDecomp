@@ -15,6 +15,10 @@
     <ProjectReference Include="..\..\external\FNA\FNA.Core.csproj" />
     <ProjectReference Include="..\FarseerPhysics\FarseerPhysics.csproj" />
   </ItemGroup>
+  <!-- Converted game content (tools/build_content.py -> build/Content, gitignored). -->
+  <ItemGroup>
+    <None Include="..\..\build\Content\**\*" Link="Content\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
   <!-- FNA native libraries (fetched by tools/fetch_fnalibs.py, gitignored). -->
   <ItemGroup>
     <None Include="..\..\fnalibs\x64\*.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
