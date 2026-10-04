@@ -25,6 +25,17 @@ Both wave banks are internally named "Wave Bank" and both sound banks "Sound Ban
 - Every entry here is **XMA2**, mono. The stored sample rates are slightly off 44100 (for example 44162 or 45692). vgmstream uses them as-is, and so do we.
 - Decoding wraps each entry in a RIFF with an `XMA2WAVEFORMATEX` header (tag `0x166`, 34-byte extension) and runs ffmpeg. The decoded sample counts match the bank durations exactly.
 
+## In the FNA port
+
+FNA's XACT implementation is FACT, part of FAudio. FACT reads **big-endian Xbox** engine (`.xgs`, tool version 42, XACT platform 7) and sound bank (`.xsb`) files directly, so `tools/build_content.py` copies those unchanged.
+
+XMA can only be decoded by FAudio through GStreamer/FFmpeg, which the Windows fnalibs don't include. `tools/build_audio.py` therefore rebuilds each wave bank as a **PC wave bank**:
+- Format: `WBND`, little-endian, same version 43 / header 42, 2048-byte alignment, no seek tables.
+- Each entry is decoded once with ffmpeg and stored as 16-bit PCM.
+- Entry order, sample rates and loop regions (in samples) are unchanged, so the sound banks' wave indices still match.
+
+`dotnet run --project tools/ContentCheck` loads both engines and banks through FNA and starts every cue the game uses. All 21 start playing.
+
 ## Sound bank (`.xsb`)
 
 - Magic `KBDS` (big-endian), version 43. The layout follows vgmstream's `xwb_xsb.h`, which `XsbParser` in the tool mirrors.

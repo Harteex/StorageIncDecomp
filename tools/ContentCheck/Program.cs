@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -68,8 +69,52 @@ internal sealed class ContentCheck : Game
 				Console.WriteLine($"FAIL  {asset}: {e}");
 			}
 		}
+		CheckAudio("audio/GameSounds.xgs", "audio/Wave Bank.xwb", "audio/Sound Bank.xsb", new[]
+		{
+			"GateClose", "GateOpen", "GoodsDrop", "GoodsSlide", "NewPeriod", "TruckHorn", "TruckLiftDown",
+			"TruckLiftUp", "OrderCompleted", "TruckMotor", "TruckCollideHard", "Bump", "LostLife"
+		});
+		CheckAudio("ScreenManagerResources/menuAudio/MenuSounds.xgs", "ScreenManagerResources/menuAudio/Wave Bank.xwb",
+			"ScreenManagerResources/menuAudio/Sound Bank.xsb", new[]
+		{
+			"Menu_UpDown", "Menu_Select", "Menu_Deny", "Menu_Change", "Menu_Back", "Menu_Music", "MapComplete", "MapFail"
+		});
 		Console.WriteLine($"{Failures} failures");
 		Exit();
+	}
+
+	// Loads an XACT engine + banks the way the game does and starts every cue it uses.
+	private void CheckAudio(string engineFile, string waveBankFile, string soundBankFile, string[] cues)
+	{
+		try
+		{
+			using var engine = new AudioEngine(Path.Combine(root, engineFile));
+			using var waveBank = new WaveBank(engine, Path.Combine(root, waveBankFile));
+			using var soundBank = new SoundBank(engine, Path.Combine(root, soundBankFile));
+			foreach (string name in new[] { "Default", "Music" })
+			{
+				engine.GetCategory(name);
+			}
+			foreach (string name in cues)
+			{
+				Cue cue = soundBank.GetCue(name);
+				cue.Play();
+				engine.Update();
+				bool playing = cue.IsPlaying;
+				cue.Stop(AudioStopOptions.Immediate);
+				engine.Update();
+				if (!playing)
+				{
+					Failures++;
+				}
+				Console.WriteLine($"{(playing ? "ok  " : "FAIL")}  cue {name}{(playing ? "" : " did not start")}");
+			}
+		}
+		catch (Exception e)
+		{
+			Failures++;
+			Console.WriteLine($"FAIL  {engineFile}: {e}");
+		}
 	}
 
 	private static int Main(string[] args)

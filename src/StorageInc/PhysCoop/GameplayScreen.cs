@@ -470,8 +470,13 @@ public class GameplayScreen : GameScreen
 		camPosition = new Vector3(640f, 860f, 600f);
 		camTarget = new Vector3(640f, 0f, 370f);
 		truckTextures = new Texture2D[playerCount];
-		Viewport viewport = PhysCoop.graphics.GraphicsDevice.Viewport;
-		projectionMatrix = Matrix.CreatePerspectiveFieldOfView((float)Math.PI / 4f, viewport.AspectRatio, 200f, 1500f);
+		// Port: the scene always renders at 1280x720 (ScreenManager.SceneTarget), so use that
+		// aspect ratio rather than the back buffer's, which changes when the window is resized.
+		projectionMatrix = Matrix.CreatePerspectiveFieldOfView((float)Math.PI / 4f, (float)ScreenManager.NativeWidth / ScreenManager.NativeHeight, 200f, 1500f);
+		// Port fix: Update only sets viewMatrix once the screen is active, but Draw runs first.
+		// The zero matrix made AddLight invert a singular matrix (NaNs; one garbage frame on Xbox,
+		// an exception in FNA debug builds). Same camera as Update.
+		viewMatrix = Matrix.CreateLookAt(camPosition, camTarget, Vector3.Forward);
 		char paddingChar = '0';
 		string text = stageID.ToString().PadLeft(3, paddingChar);
 		XmlSerializer xmlSerializer = new XmlSerializer(typeof(StageData));

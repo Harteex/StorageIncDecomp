@@ -15,8 +15,10 @@ which FNA cannot load. They are re-encoded as XNA 4.0 Windows XNBs (version 5, p
   SpriteFont  same as Texture2D for the glyph sheet; tables copied
   Model       per-mesh XNA 3.0 buffers + declaration table -> XNA 4.0 per-part shared
               vertex/index buffers with embedded declarations, data byte-swapped
-  Effect      not converted (compiled Xbox shaders); see docs/porting.md
-  stages/*.xml are copied as-is. Audio (XACT) is handled separately.
+  Effect      not converted (compiled Xbox shaders); rewritten in src/StorageInc/Shaders
+  XACT        .xgs/.xsb copied (FACT reads Xbox banks), .xwb rebuilt as PCM (needs ffmpeg);
+              see tools/build_audio.py
+  stages/*.xml are copied as-is.
 """
 import os
 import shutil
@@ -24,6 +26,7 @@ import struct
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from build_audio import convert_audio_file  # noqa: E402
 from xnb_extract import (ContentReader, SURFACE_COLOR, SURFACE_DXT1, SURFACE_DXT3,  # noqa: E402
                          SURFACE_DXT5, argb_to_rgba, read_xnb_body, swap16)
 
@@ -329,6 +332,9 @@ def main():
                     if not written:
                         skipped.append(rel)
                         continue
+                elif ext in (".xgs", ".xsb", ".xwb"):
+                    print(f"  {rel}: {convert_audio_file(src, dst)}")
+                    kind = "xact"
                 elif ext == ".xml":
                     shutil.copyfile(src, dst)
                     kind = "xml"
