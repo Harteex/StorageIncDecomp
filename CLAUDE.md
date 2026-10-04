@@ -4,7 +4,7 @@ Decompilation of **Storage Inc**, an Xbox 360 Indie Game (XBLIG, built with XNA 
 Store description: "Cooperative arcade puzzle game for 1-4 Local players. 100 Maps, all with full coop support."
 
 Phase 1 (done): unpack the package, decompile the managed code to readable C#, and extract the content assets.
-Phase 2 (in progress): port to PC on **FNA** (`src/`). It compiles and content loads (converted to XNA 4 XNBs); shaders and audio are next. See `docs/porting.md`.
+Phase 2 (in progress): port to PC on **FNA** (`src/`). It compiles, content loads (converted to XNA 4 XNBs) and the effects are rewritten from the decompiled Xbox microcode (`docs/shaders.md`); audio is next. See `docs/porting.md`.
 
 ## Source files (repo root — treat as read-only originals, never modify)
 
@@ -36,7 +36,7 @@ Phase 2 (in progress): port to PC on **FNA** (`src/`). It compiles and content l
 - Extract audio with `python tools/xwb_extract.py` (same defaults, XMA2 → WAV, needs ffmpeg; named by XSB cue). Notes are in `docs/audio.md`.
 - ILSpy is a repo-local dotnet tool (`dotnet-tools.json`, ilspycmd 11.1). Run `dotnet tool restore`, then regenerate `decomp/` with:
   `dotnet ilspycmd -p -o decomp/PhysCoop -r extracted/584E07D1 extracted/584E07D1/PhysCoop.exe` (same for `FarseerProject.dll`).
-- Port build: `git submodule update --init --recursive`, `python tools/fetch_fnalibs.py`, `python tools/build_content.py`, `dotnet build StorageInc.slnx`. Verify content with `dotnet run --project tools/ContentCheck`.
+- Port build: `git submodule update --init --recursive`, `python tools/fetch_fnalibs.py`, `python tools/build_content.py`, `dotnet build StorageInc.slnx`. Verify content with `dotnet run --project tools/ContentCheck`. After editing `src/StorageInc/Shaders/*.fx`, run `python tools/build_shaders.py` (needs the Windows SDK's fxc) and commit the `.fxb` too. `python tools/fx_dump.py <effect>` dumps any effect binary, Xbox or PC.
 - Prefer writing small, reproducible Python scripts in `tools/` over one-off GUI tools, so every extraction step can be re-run.
 
 ## Layout

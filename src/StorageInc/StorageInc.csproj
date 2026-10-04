@@ -19,6 +19,11 @@
   <ItemGroup>
     <None Include="..\..\build\Content\**\*" Link="Content\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
+  <!-- Reconstructed effects (tools/build_shaders.py compiles Shaders/*.fx to the committed *.fxb). -->
+  <ItemGroup>
+    <None Include="Shaders\Brightness.fxb" Link="Content\ScreenManagerResources\Brightness.fxb" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Shaders\Deferred1Scene.fxb;Shaders\Deferred2Lights.fxb;Shaders\Deferred3Final.fxb;Shaders\ShadowMap.fxb" Link="Content\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
   <!-- FNA native libraries (fetched by tools/fetch_fnalibs.py, gitignored). -->
   <ItemGroup>
     <None Include="..\..\fnalibs\x64\*.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />

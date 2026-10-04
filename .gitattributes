@@ -5,3 +5,4 @@
 *.wav binary
 *.dll binary
 *.exe binary
+*.fxb binary

@@ -71,12 +71,13 @@ FNA rejects XNB version 3. Its texture reader can byte-swap Xbox data, but its m
 | SpriteFont (2) | Glyph sheet as above, tables copied. |
 | Model (11) | The XNA 3.0 per-mesh buffers and declaration table become XNA 4.0 shared buffers, one vertex buffer per part (`VertexOffset` 0, declaration embedded), with big-endian vertex and index data swapped. `VertexElementUsage` is renumbered (3.0 TextureCoordinate 5 → 4.0 2). `VertexDeclarationReader` must be listed in the XNB header even though it's read "raw". |
 | stages/*.xml | Copied as-is. |
-| Effects (5), XACT (6) | Not converted. See below. |
+| Effects (5) | Not converted. They were rewritten in HLSL from the decompiled Xbox microcode (`src/StorageInc/Shaders`). See `docs/shaders.md`. |
+| XACT (6) | Not converted yet. See below. |
 
 `dotnet run --project tools/ContentCheck` loads every converted XNB through FNA. For models it reads the vertices back and checks their bounds and that normals are unit length. Current result: 170/170 load, and all normals are unit length.
 
 ## Still to do
 
-1. **Effects.** `Deferred1Scene`, `Deferred2Lights`, `Deferred3Final`, `ShadowMap` and `Brightness` must be rewritten in HLSL and compiled for FNA (fx_2_0). The parameter and technique names are known from the code.
-2. **Audio.** The XACT banks are Xbox (big-endian, XMA). FNA's XACT needs PC banks, so they must be rebuilt as PCM or ADPCM.
-3. **Paths.** Content paths use `\\`, and the stage XML is read from `Content/stages`. These need checking on Linux and macOS.
+1. **Audio.** The XACT banks are Xbox (big-endian, XMA). FNA's XACT needs PC banks, so they must be rebuilt as PCM or ADPCM.
+2. **Paths.** Content paths use `\\`, and the stage XML is read from `Content/stages`. These need checking on Linux and macOS.
+3. **Runtime check of the renderer.** The effects match the originals' interfaces and decompiled math, but nothing has been seen on screen yet: the game stops at audio setup first.
