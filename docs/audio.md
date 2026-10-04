@@ -27,7 +27,13 @@ Both wave banks are internally named "Wave Bank" and both sound banks "Sound Ban
 
 ## In the FNA port
 
-FNA's XACT implementation is FACT, part of FAudio. FACT reads **big-endian Xbox** engine (`.xgs`, tool version 42, XACT platform 7) and sound bank (`.xsb`) files directly, so `tools/build_content.py` copies those unchanged.
+FNA's XACT implementation is FACT, part of FAudio. FACT accepts **big-endian Xbox** engine (`.xgs`, tool version 42, XACT platform 7) and sound bank (`.xsb`) files and swaps their integers, but **its `read_f32()` ignores the swap flag**. Every float in those files is therefore read byte-reversed. Here that turned the `Volume` cue variable range −96..6 into about 7e-41, so the RPC that attenuates `TruckMotor` never applied and the motor played at full volume all the time.
+
+`tools/xact_endian.py` converts both file types to **little-endian PC byte order**. It walks the same structure as FACT's parsers and byte-reverses each multi-byte field. Sizes and offsets don't change. This stays correct if FAudio fixes the bug later.
+
+Measured through FNA with WASAPI loopback after the fix: `Volume` −96 is silent, and −25 → −1 raises the level 15.7× (expected 24 dB = 15.85×). `ContentCheck` checks that a new `TruckMotor` cue reads `Volume` = −96.
+
+At −25 dB the motor still hums quietly while a player is in the game. That's the original design: the game sets `Volume = −25 + |left stick Y| × 24` every frame.
 
 XMA can only be decoded by FAudio through GStreamer/FFmpeg, which the Windows fnalibs don't include. `tools/build_audio.py` therefore rebuilds each wave bank as a **PC wave bank**:
 - Format: `WBND`, little-endian, same version 43 / header 42, 2048-byte alignment, no seek tables.

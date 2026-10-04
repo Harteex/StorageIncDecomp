@@ -376,15 +376,9 @@ public class Arbiter : IEquatable<Arbiter>
 
 	private static int CompareSeperation(Contact c1, Contact c2)
 	{
-		if (c1.Separation < c2.Separation)
-		{
-			return -1;
-		}
-		if (c1.Separation == c2.Separation)
-		{
-			return 0;
-		}
-		return 1;
+		// Port fix: same order as the original (<, ==, >) for real numbers, but consistent for
+		// NaN too, which .NET 8's sort would otherwise reject with an exception.
+		return c1.Separation.CompareTo(c2.Separation);
 	}
 
 	private void InitializeContactLists(int maxContactsToDetect)

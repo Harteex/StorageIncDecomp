@@ -72,7 +72,7 @@ FNA rejects XNB version 3. Its texture reader can byte-swap Xbox data, but its m
 | Model (11) | The XNA 3.0 per-mesh buffers and declaration table become XNA 4.0 shared buffers, one vertex buffer per part (`VertexOffset` 0, declaration embedded), with big-endian vertex and index data swapped. `VertexElementUsage` is renumbered (3.0 TextureCoordinate 5 → 4.0 2). `VertexDeclarationReader` must be listed in the XNB header even though it's read "raw". |
 | stages/*.xml | Copied as-is. |
 | Effects (5) | Not converted. They were rewritten in HLSL from the decompiled Xbox microcode (`src/StorageInc/Shaders`). See `docs/shaders.md`. |
-| XACT (6) | `.xgs`/`.xsb` copied (FACT reads Xbox banks). `.xwb` rebuilt as PC wave banks with 16-bit PCM decoded by ffmpeg (`tools/build_audio.py`). See `docs/audio.md`. |
+| XACT (6) | `.xgs`/`.xsb` converted to little-endian (`tools/xact_endian.py`; FAudio misreads big-endian floats). `.xwb` rebuilt as PC wave banks with 16-bit PCM decoded by ffmpeg (`tools/build_audio.py`). See `docs/audio.md`. |
 
 `dotnet run --project tools/ContentCheck` loads every converted XNB through FNA. For models it reads the vertices back and checks their bounds and that normals are unit length. Current result: 170/170 load, and all normals are unit length.
 
@@ -88,6 +88,10 @@ The game runs on Windows (FNA, Vulkan). Checked so far:
 Port fixes found at runtime:
 - **First gameplay frame drew with a zero view matrix.** `GameplayScreen` set `viewMatrix` only in `Update` while active, but `Draw` runs first. Inverting the zero matrix gave NaNs (a garbage frame on Xbox, an exception in FNA debug builds). It's now initialised in the constructor with the same camera.
 - **Projection aspect ratio** uses the native 1280×720 instead of the back buffer, so resizing the window doesn't distort the scene.
+- **Crash when goods arrived (Farseer).** `SelectiveSweepCollider.StubComparer` broke ties as `left.Begin ? -1 : 1` without looking at `right`, so two Begin stubs at the same coordinate each compared "less" than the other. .NET CF's sort tolerated that; .NET 8's `List.Sort` can detect it and throws `ArgumentException: … IComparer.Compare() method returns inconsistent results`. New goods spawn aligned with existing ones, which triggered it. The fix keeps the order (by value, Begin before End) but treats same-kind ties as equal. `Arbiter.CompareSeperation` was also made NaN-safe with `CompareTo`.
+- **Truck motor at full volume all the time.** FAudio misread the Xbox `.xgs` floats, so the `Volume` RPC never attenuated it. Fixed by converting the files to little-endian (see `docs/audio.md`).
+
+How these were reproduced without a gamepad: a temporary local edit skipped the "gamepad disconnected" pause, then a script sent keys (held ~150 ms, since the game polls key state) to reach a level and let goods arrive.
 
 Original quirks kept:
 - On a brand-new save, the Game Setup map preview is blank until the next launch. `CreateNewGame` never calls `NewMapSelected`.

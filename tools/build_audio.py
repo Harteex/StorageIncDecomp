@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
 """Convert the Xbox 360 XACT audio for the FNA port (used by tools/build_content.py).
 
-FNA's XACT implementation (FACT, in FAudio) reads big-endian Xbox engine (.xgs) and sound
-bank (.xsb) files directly, so those are copied unchanged. Wave banks (.xwb) are rebuilt:
+FNA's XACT implementation (FACT, in FAudio) accepts big-endian Xbox engine (.xgs) and sound
+bank (.xsb) files, but reads their floats without byte-swapping (FAudio bug), so they are
+converted to little-endian by tools/xact_endian.py. Wave banks (.xwb) are rebuilt:
 the Xbox banks hold XMA2, which FAudio can only decode through GStreamer/FFmpeg (absent from
 the Windows fnalibs). Each entry is decoded once with ffmpeg and written into a PC wave
 bank (little-endian 'WBND', same XACT version) as 16-bit PCM. Entry order, sample rates
 and loop regions are preserved, so the sound banks' wave indices stay valid.
 """
 import os
-import shutil
 import struct
 import sys
 import tempfile
 import wave
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from xact_endian import convert_xgs, convert_xsb  # noqa: E402
 from xwb_extract import TAG_PCM, TAG_XMA, decode_xma, find_ffmpeg, parse_xwb  # noqa: E402
 
 BANKDATA_SIZE = 0x60
@@ -87,8 +88,15 @@ def convert_audio_file(src, dst, ffmpeg=None):
     """Convert or copy one XACT file; returns a short description."""
     ext = os.path.splitext(src)[1].lower()
     if ext in (".xgs", ".xsb"):
-        shutil.copyfile(src, dst)
-        return "copied"
+        data = open(src, "rb").read()
+        if data[:4] in (b"FSGX", b"KBDS"):  # big-endian Xbox file
+            data = convert_xgs(data) if ext == ".xgs" else convert_xsb(data)
+            result = "converted to little-endian"
+        else:
+            result = "copied"
+        with open(dst, "wb") as f:
+            f.write(data)
+        return result
     if ext == ".xwb":
         ffmpeg = ffmpeg or find_ffmpeg(None)
         if not ffmpeg:

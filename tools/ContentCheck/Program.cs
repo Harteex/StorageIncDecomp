@@ -98,6 +98,14 @@ internal sealed class ContentCheck : Game
 			foreach (string name in cues)
 			{
 				Cue cue = soundBank.GetCue(name);
+				if (name == "TruckMotor")
+				{
+					// Engine floats must read back correctly (FAudio misreads big-endian .xgs floats).
+					float volume = cue.GetVariable("Volume");
+					bool ok = volume == -96f;
+					Failures += ok ? 0 : 1;
+					Console.WriteLine($"{(ok ? "ok  " : "FAIL")}  cue TruckMotor Volume initial value {volume} (expected -96)");
+				}
 				cue.Play();
 				engine.Update();
 				bool playing = cue.IsPlaying;

@@ -23,17 +23,24 @@ public sealed class SelectiveSweepCollider : IBroadPhaseCollider
 
 	private sealed class StubComparer : IComparer<Stub>
 	{
+		// Port fix: the original tie-break returned left.Begin ? -1 : 1 without looking at
+		// right, so two Begin (or two End) stubs at the same value each compared "less" than
+		// the other. .NET CF's sort tolerated that; .NET 8's List.Sort can detect it and
+		// throws ("IComparer.Compare() method returns inconsistent results"), which happened
+		// when new goods spawned aligned with existing ones. Same order otherwise: by value,
+		// then Begin before End (touching AABBs still overlap); same-kind ties are equal.
 		public int Compare(Stub left, Stub right)
 		{
-			if (left.Value < right.Value)
+			int byValue = left.Value.CompareTo(right.Value);
+			if (byValue != 0)
 			{
-				return -1;
+				return byValue;
 			}
-			if (left.Value > right.Value)
+			if (left.Begin == right.Begin)
 			{
-				return 1;
+				return 0;
 			}
-			return (left != right) ? ((!left.Begin) ? 1 : (-1)) : 0;
+			return left.Begin ? -1 : 1;
 		}
 	}
 
