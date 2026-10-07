@@ -100,4 +100,15 @@ Original quirks kept:
 ## Still to do
 
 1. **More play-testing.** Gamepad play has been tested on Windows: driving and handling, rendering, goods arriving over time, motor sound and saving all work. Still untested: 2–4 players, all 100 stages, and the full set of sounds.
-2. **Paths.** Content paths use `\\`, and the stage XML is read from `Content/stages`. These need checking on Linux and macOS.
+2. **Run on Linux and macOS.** The builds are prepared (see below) but not yet run on either OS.
+
+## Linux and macOS
+
+- **Path separators:** the game's `\\` asset paths are fine. Every load goes through FNA's `TitleContainer`, which normalizes separators: `ContentManager`, external references, and the `AudioEngine`/`WaveBank`/`SoundBank` file names. The few direct `System.IO` uses build paths with `Path.Combine`: stage XML, the map preview `File.Exists`, and saves.
+- **Case sensitivity:** Linux filesystems are case-sensitive, and FNA's case-insensitive fallback (`CASE_SENSITIVITY_HACK`) is off by default. `python tools/check_content_paths.py` resolves every name with exact case against the built `Content/` folder. That covers names in code, all 100 stages and map previews, and the texture references inside the models. All 293 match.
+- **Saves:** `Documents/SavedGames/Storage Inc` on Windows, `~/Library/Application Support/Storage Inc` on macOS, and `$XDG_DATA_HOME` (default `~/.local/share`) `/Storage Inc` on Linux. These are the same roots FNA's own StorageDevice uses.
+- **Native libraries:** `FnaLibs.targets` copies the right fnalibs folder (`x64`, `lib64`, `libaarch64` or `osx`). It uses `-r <rid>` when publishing, otherwise the OS and CPU doing the build. `FNA.dll.config` maps the library names per OS. The projects no longer force x64, so ARM64 Linux and Apple Silicon run natively.
+- **Publishing:** `dotnet publish src/StorageInc/StorageInc.csproj -c Release -r linux-x64 --self-contained -o out/linux-x64`, and the same with `osx-arm64`, `osx-x64` or `win-x64`. Both Linux and macOS outputs were checked to contain their native libraries and all 281 content files.
+  - If the folder is copied from Windows, run `chmod +x StorageInc` on the target, since Windows filesystems don't keep the executable bit.
+  - macOS may quarantine unsigned binaries. Run `xattr -dr com.apple.quarantine <folder>` if it refuses to start.
+- **Build tools:** `build_content.py` needs `ffmpeg` on PATH. `build_shaders.py` needs the Windows SDK's `fxc`, but the compiled `.fxb` files are committed, so other platforms don't need it.

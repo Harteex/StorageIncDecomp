@@ -1,0 +1,25 @@
+<Project>
+  <!--
+    Copies the FNA native libraries (fnalibs/, fetched by tools/fetch_fnalibs.py) for the target
+    platform next to the executable. FNA.dll.config maps SDL3/FNA3D/FAudio to the per-OS file names.
+    Target = the RuntimeIdentifier when publishing with -r, otherwise the OS/CPU doing the build.
+  -->
+  <PropertyGroup>
+    <FnaLibsRid>$(RuntimeIdentifier)</FnaLibsRid>
+    <FnaLibsRid Condition="'$(FnaLibsRid)' == '' and $([MSBuild]::IsOSPlatform('Windows'))">win-x64</FnaLibsRid>
+    <FnaLibsRid Condition="'$(FnaLibsRid)' == '' and $([MSBuild]::IsOSPlatform('OSX'))">osx</FnaLibsRid>
+    <FnaLibsRid Condition="'$(FnaLibsRid)' == '' and $([MSBuild]::IsOSPlatform('Linux')) and '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'Arm64'">linux-arm64</FnaLibsRid>
+    <FnaLibsRid Condition="'$(FnaLibsRid)' == '' and $([MSBuild]::IsOSPlatform('Linux'))">linux-x64</FnaLibsRid>
+
+    <FnaLibsDir Condition="$(FnaLibsRid.StartsWith('win'))">x64</FnaLibsDir>
+    <FnaLibsDir Condition="$(FnaLibsRid.StartsWith('osx'))">osx</FnaLibsDir>
+    <FnaLibsDir Condition="'$(FnaLibsRid)' == 'linux-x64'">lib64</FnaLibsDir>
+    <FnaLibsDir Condition="'$(FnaLibsRid)' == 'linux-arm64'">libaarch64</FnaLibsDir>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(FnaLibsDir)' != ''">
+    <None Include="$(MSBuildThisFileDirectory)fnalibs\$(FnaLibsDir)\*" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+  <Target Name="WarnMissingFnaLibs" BeforeTargets="Build" Condition="'$(FnaLibsDir)' == '' or !Exists('$(MSBuildThisFileDirectory)fnalibs\$(FnaLibsDir)')">
+    <Warning Text="FNA native libraries for '$(FnaLibsRid)' not found in fnalibs\$(FnaLibsDir); run python tools/fetch_fnalibs.py" />
+  </Target>
+</Project>

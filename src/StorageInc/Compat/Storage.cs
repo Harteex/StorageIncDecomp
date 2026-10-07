@@ -20,7 +20,10 @@ namespace Microsoft.Xna.Framework.Storage
 		/// <summary>Directory the game was started from (XNA 3.0 StorageContainer.TitleLocation).</summary>
 		public static string TitleLocation => AppContext.BaseDirectory;
 
-		/// <summary>Documents/SavedGames on Windows (like XNA and FNA), the XDG data dir elsewhere.</summary>
+		/// <summary>
+		/// Per-OS save folder, matching FNA's own StorageDevice roots: Documents/SavedGames on
+		/// Windows (like XNA), ~/Library/Application Support on macOS, the XDG data dir elsewhere.
+		/// </summary>
 		private static string SaveRoot
 		{
 			get
@@ -28,6 +31,10 @@ namespace Microsoft.Xna.Framework.Storage
 				if (OperatingSystem.IsWindows())
 				{
 					return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SavedGames");
+				}
+				if (OperatingSystem.IsMacOS())
+				{
+					return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library", "Application Support");
 				}
 				string xdg = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
 				if (string.IsNullOrEmpty(xdg))

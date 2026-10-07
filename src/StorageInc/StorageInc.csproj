@@ -9,7 +9,6 @@
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\external\FNA\FNA.Core.csproj" />
@@ -24,8 +23,6 @@
     <None Include="Shaders\Brightness.fxb" Link="Content\ScreenManagerResources\Brightness.fxb" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Shaders\Deferred1Scene.fxb;Shaders\Deferred2Lights.fxb;Shaders\Deferred3Final.fxb;Shaders\ShadowMap.fxb" Link="Content\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-  <!-- FNA native libraries (fetched by tools/fetch_fnalibs.py, gitignored). -->
-  <ItemGroup>
-    <None Include="..\..\fnalibs\x64\*.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
-  </ItemGroup>
+  <!-- FNA native libraries for the target OS/CPU (fetched by tools/fetch_fnalibs.py, gitignored). -->
+  <Import Project="..\..\FnaLibs.targets" />
 </Project>
