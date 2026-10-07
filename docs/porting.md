@@ -99,5 +99,5 @@ Original quirks kept:
 
 ## Still to do
 
-1. **Play-test with a gamepad.** Truck controls, physics (Farseer), goods and orders, all 100 stages, 2–4 players.
+1. **More play-testing.** Gamepad play has been tested on Windows: driving and handling, rendering, goods arriving over time, motor sound and saving all work. Still untested: 2–4 players, all 100 stages, and the full set of sounds.
 2. **Paths.** Content paths use `\\`, and the stage XML is read from `Content/stages`. These need checking on Linux and macOS.

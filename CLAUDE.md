@@ -4,7 +4,7 @@ Decompilation of **Storage Inc**, an Xbox 360 Indie Game (XBLIG, built with XNA 
 Store description: "Cooperative arcade puzzle game for 1-4 Local players. 100 Maps, all with full coop support."
 
 Phase 1 (done): unpack the package, decompile the managed code to readable C#, and extract the content assets.
-Phase 2 (in progress): port to PC on **FNA** (`src/`). It runs on Windows: content is converted to XNA 4 XNBs, the effects are rewritten from the decompiled Xbox microcode (`docs/shaders.md`), and the XACT audio uses PCM wave banks (`docs/audio.md`). Menus and level loading work; gamepad play-testing is next. See `docs/porting.md`.
+Phase 2 (in progress): port to PC on **FNA** (`src/`). It runs on Windows: content is converted to XNA 4 XNBs, the effects are rewritten from the decompiled Xbox microcode (`docs/shaders.md`), and the XACT audio uses PCM wave banks (`docs/audio.md`). Gamepad play has been tested and works on Windows (driving, goods arrival, motor sound, saving). Next: Linux/macOS paths, multiplayer testing. See `docs/porting.md`.
 
 ## Source files (repo root — treat as read-only originals, never modify)
 
