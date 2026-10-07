@@ -155,7 +155,7 @@ public abstract class GameScreen
 		}
 		if (infoRect.IsEmpty)
 		{
-			Viewport viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+			Viewport viewport = ScreenManager.LogicalViewport;
 			infoRect = viewport.TitleSafeArea;
 		}
 		for (int num = infoEntryList.Count - 1; num >= 0; num--)

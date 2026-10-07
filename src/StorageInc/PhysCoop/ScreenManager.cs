@@ -209,6 +209,34 @@ public class ScreenManager : DrawableGameComponent
 
 	public RenderTarget2D SceneTarget => sceneTarget;
 
+	// Port: the scene target matches the largest 16:9 area of the window, so the 3D scene renders
+	// at full resolution. All 2D layout stays in the original 1280x720 coordinates: code that used
+	// GraphicsDevice.Viewport for layout or Viewport.Project uses LogicalViewport instead, and
+	// sprite batches drawing into the scene apply SpriteScale.
+	public static readonly Viewport LogicalViewport = new Viewport(0, 0, NativeWidth, NativeHeight);
+
+	public Matrix SpriteScale { get; private set; } = Matrix.Identity;
+
+	public int RenderWidth => sceneTarget.Width;
+
+	public int RenderHeight => sceneTarget.Height;
+
+	/// <summary>(Re)creates the scene target when the window's 16:9 area changes size.</summary>
+	private void EnsureSceneTarget()
+	{
+		GraphicsDevice device = ((DrawableGameComponent)this).GraphicsDevice;
+		Rectangle area = GetLetterboxRectangle(device.PresentationParameters);
+		int width = Math.Max(area.Width, 16);
+		int height = Math.Max(area.Height, 9);
+		if (sceneTarget != null && sceneTarget.Width == width && sceneTarget.Height == height)
+		{
+			return;
+		}
+		sceneTarget?.Dispose();
+		sceneTarget = new RenderTarget2D(device, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8, 0, RenderTargetUsage.PreserveContents);
+		SpriteScale = Matrix.CreateScale((float)width / NativeWidth, (float)height / NativeHeight, 1f);
+	}
+
 	private Effect brightnessEffect;
 
 	public ControllerLayouts ControllerLayouts = new ControllerLayouts();
@@ -290,7 +318,7 @@ public class ScreenManager : DrawableGameComponent
 		Icon_Locked = content.Load<Texture2D>("ScreenManagerResources\\Locked");
 		Icon_XboxController = content.Load<Texture2D>("ScreenManagerResources\\xboxControllerFront");
 		MapImage = BlankTexture;
-		sceneTarget = new RenderTarget2D(((DrawableGameComponent)this).GraphicsDevice, NativeWidth, NativeHeight, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8, 0, RenderTargetUsage.PreserveContents);
+		EnsureSceneTarget();
 		brightnessEffect = content.Load<Effect>("ScreenManagerResources\\Brightness");
 		menuAudioEngine = new AudioEngine("Content\\ScreenManagerResources\\menuAudio\\MenuSounds.xgs");
 		menuWaveBank = new WaveBank(menuAudioEngine, "Content\\ScreenManagerResources\\menuAudio\\Wave Bank.xwb");
@@ -597,17 +625,18 @@ public class ScreenManager : DrawableGameComponent
 
 	public override void Draw(GameTime gameTime)
 	{
+		EnsureSceneTarget();
 		((DrawableGameComponent)this).GraphicsDevice.SetRenderTarget(sceneTarget);
 		((DrawableGameComponent)this).GraphicsDevice.Clear(Color.Black);
 		if (showSplash)
 		{
 			((DrawableGameComponent)this).GraphicsDevice.Clear(Color.Black);
-			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied); // XNA 3.0 default: non-premultiplied alpha
+			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, null, null, null, null, SpriteScale); // XNA 3.0 default: non-premultiplied alpha
 			SpriteBatch val = spriteBatch;
 			Texture2D val2 = splashLogo;
-			Viewport viewport = ((DrawableGameComponent)this).GraphicsDevice.Viewport;
+			Viewport viewport = LogicalViewport;
 			float num = viewport.Width / 2 - splashLogo.Width / 2;
-			viewport = ((DrawableGameComponent)this).GraphicsDevice.Viewport;
+			viewport = LogicalViewport;
 			val.Draw(val2, new Vector2(num, (float)(viewport.Height / 2 - splashLogo.Height / 2)), new Color(1f, 1f, 1f, splashFade));
 			spriteBatch.End();
 		}
@@ -657,8 +686,8 @@ public class ScreenManager : DrawableGameComponent
 
 	public void FadeBackBufferToBlack(int alpha)
 	{
-		Viewport viewport = ((DrawableGameComponent)this).GraphicsDevice.Viewport;
-		spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied); // XNA 3.0 default: non-premultiplied alpha
+		Viewport viewport = LogicalViewport;
+		spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, null, null, null, null, SpriteScale); // XNA 3.0 default: non-premultiplied alpha
 		spriteBatch.Draw(FadeTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color((byte)0, (byte)0, (byte)0, (byte)alpha));
 		spriteBatch.End();
 	}

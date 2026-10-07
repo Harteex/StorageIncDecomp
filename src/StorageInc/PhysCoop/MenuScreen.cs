@@ -179,11 +179,11 @@ internal abstract class MenuScreen : GameScreen
 		SpriteFont font = ScreenManager.Font;
 		Vector2 val = new Vector2(640f, 400f);
 		float num = (float)(font.LineSpacing * menuEntries.Count + font.LineSpacing) + val.Y;
-		Viewport viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+		Viewport viewport = ScreenManager.LogicalViewport;
 		Rectangle titleSafeArea = viewport.TitleSafeArea;
 		if (num > (float)(titleSafeArea.Bottom - 32))
 		{
-			viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+			viewport = ScreenManager.LogicalViewport;
 			titleSafeArea = viewport.TitleSafeArea;
 			val.Y = titleSafeArea.Bottom - 32 - (font.LineSpacing * menuEntries.Count + font.LineSpacing);
 		}
@@ -199,27 +199,27 @@ internal abstract class MenuScreen : GameScreen
 		num2 /= 2f;
 		val.X -= num2;
 		float num3 = (float)Math.Pow(TransitionPosition, 2.0);
-		spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied); // XNA 3.0 default: non-premultiplied alpha
+		spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, null, null, null, null, ScreenManager.SpriteScale); // XNA 3.0 default: non-premultiplied alpha
 		if ((object)GetType() == typeof(HowToPlayMenuScreen) || (object)GetType() == typeof(NagMenuScreen) || (object)GetType() == typeof(CreditsMenuScreen) || (object)GetType() == typeof(MapCompletedMenuScreen) || (object)GetType() == typeof(MapFailedMenuScreen))
 		{
 			if ((object)GetType() != typeof(MapCompletedMenuScreen) && (object)GetType() != typeof(MapFailedMenuScreen))
 			{
 				Texture2D val2 = infoBackground;
-				viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+				viewport = ScreenManager.LogicalViewport;
 				float num4 = (float)viewport.Width / 2f - (float)infoBackground.Width / 2f;
-				viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+				viewport = ScreenManager.LogicalViewport;
 				spriteBatch.Draw(val2, new Vector2(num4, (float)viewport.Height / 2f - (float)infoBackground.Height / 2f), new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, TransitionAlpha));
 			}
 			Texture2D val3 = infoTexture;
-			viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+			viewport = ScreenManager.LogicalViewport;
 			float num5 = (float)viewport.Width / 2f - (float)infoTexture.Width / 2f;
-			viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+			viewport = ScreenManager.LogicalViewport;
 			spriteBatch.Draw(val3, new Vector2(num5, (float)viewport.Height / 2f - (float)infoTexture.Height / 2f), new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, TransitionAlpha));
 		}
 		else if ((object)GetType() == typeof(TutorialMessageMenuScreen))
 		{
 			TutorialMessageMenuScreen tutorialMessageMenuScreen = (TutorialMessageMenuScreen)this;
-			Viewport viewport2 = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+			Viewport viewport2 = ScreenManager.LogicalViewport;
 			Vector2 val4 = new Vector2((float)viewport2.Width, (float)viewport2.Height);
 			Vector2 val5 = ScreenManager.SmallFont.MeasureString(tutorialMessageMenuScreen.message);
 			Vector2 val6 = (val4 - val5) / 2f;
@@ -244,17 +244,17 @@ internal abstract class MenuScreen : GameScreen
 					val8.Y = arrowTarget2D.Y - 128f - (float)val7.Height;
 				}
 				float x = val8.X;
-				viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+				viewport = ScreenManager.LogicalViewport;
 				titleSafeArea = viewport.TitleSafeArea;
 				float num6 = titleSafeArea.Left;
-				viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+				viewport = ScreenManager.LogicalViewport;
 				titleSafeArea = viewport.TitleSafeArea;
 				val8.X = MathHelper.Clamp(x, num6, (float)(titleSafeArea.Right - val7.Width));
 				float y = val8.Y;
-				viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+				viewport = ScreenManager.LogicalViewport;
 				titleSafeArea = viewport.TitleSafeArea;
 				float num7 = titleSafeArea.Top;
-				viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+				viewport = ScreenManager.LogicalViewport;
 				titleSafeArea = viewport.TitleSafeArea;
 				val8.Y = MathHelper.Clamp(y, num7, (float)(titleSafeArea.Bottom - val7.Height));
 				val7.X = (int)val8.X;

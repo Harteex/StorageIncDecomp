@@ -295,6 +295,11 @@ public class InputState
 		{
 			playerIndex = (PlayerIndex)(int)controllingPlayer.Value;
 			int num = (int)playerIndex;
+			// Port: Alt+Enter toggles fullscreen (PhysCoop.Update), so it must not also select menu entries.
+			if (key == Keys.Enter && (CurrentKeyboardStates[num].IsKeyDown(Keys.LeftAlt) || CurrentKeyboardStates[num].IsKeyDown(Keys.RightAlt)))
+			{
+				return false;
+			}
 			return CurrentKeyboardStates[num].IsKeyDown(key) && LastKeyboardStates[num].IsKeyUp(key);
 		}
 		return IsNewKeyPress(key, (PlayerIndex)0, out playerIndex) || IsNewKeyPress(key, (PlayerIndex)1, out playerIndex) || IsNewKeyPress(key, (PlayerIndex)2, out playerIndex) || IsNewKeyPress(key, (PlayerIndex)3, out playerIndex);

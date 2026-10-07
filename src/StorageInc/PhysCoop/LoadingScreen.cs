@@ -78,14 +78,14 @@ internal class LoadingScreen : GameScreen
 		{
 			SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
 			SpriteFont font = ScreenManager.Font;
-			Viewport viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+			Viewport viewport = ScreenManager.LogicalViewport;
 			Vector2 val = new Vector2((float)viewport.Width, (float)viewport.Height);
 			Vector2 val2 = font.MeasureString("Loading...");
 			Vector2 val3 = (val - val2) / 2f;
 			float x = font.MeasureString("Loading...").X;
 			x = (int)Math.Ceiling(x / 16f) * 16;
 			x /= 2f;
-			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied); // XNA 3.0 default: non-premultiplied alpha
+			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, null, null, null, null, ScreenManager.SpriteScale); // XNA 3.0 default: non-premultiplied alpha
 			spriteBatch.Draw(ScreenManager.PlayerSlotBackground, new Rectangle((int)(val3.X - (float)font.LineSpacing - 4f), (int)(val3.Y - (float)font.LineSpacing), (int)(x * 2f + (float)(font.LineSpacing * 2)), font.LineSpacing * 3), new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, TransitionAlpha));
 			spriteBatch.DrawString(font, "Loading...", val3 + Vector2.One, new Color((byte)0, (byte)0, (byte)0, TransitionAlpha));
 			spriteBatch.DrawString(font, "Loading...", val3, new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, TransitionAlpha));

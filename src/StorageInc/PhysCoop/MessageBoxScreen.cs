@@ -67,13 +67,13 @@ internal class MessageBoxScreen : GameScreen
 		SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
 		SpriteFont smallFont = ScreenManager.SmallFont;
 		ScreenManager.FadeBackBufferToBlack(TransitionAlpha / 2);
-		Viewport viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+		Viewport viewport = ScreenManager.LogicalViewport;
 		Vector2 val = new Vector2((float)viewport.Width, (float)viewport.Height);
 		Vector2 val2 = smallFont.MeasureString(message);
 		Vector2 val3 = (val - val2) / 2f;
 		Rectangle val4 = new Rectangle((int)val3.X - 32, (int)val3.Y - 48, (int)val2.X + 64, (int)val2.Y + 96);
 		Color val5 = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue, TransitionAlpha);
-		spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied); // XNA 3.0 default: non-premultiplied alpha
+		spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, null, null, null, null, ScreenManager.SpriteScale); // XNA 3.0 default: non-premultiplied alpha
 		spriteBatch.Draw(messageBackground, val4, val5);
 		spriteBatch.DrawString(smallFont, message, val3 + new Vector2(1f, -31f), new Color((byte)0, (byte)0, (byte)0, TransitionAlpha));
 		spriteBatch.DrawString(smallFont, message, val3 + new Vector2(0f, -32f), val5);

@@ -102,6 +102,25 @@ Original quirks kept:
 1. **More play-testing.** Gamepad play has been tested on Windows: driving and handling, rendering, goods arriving over time, motor sound and saving all work. Still untested: 2–4 players, all 100 stages, and the full set of sounds.
 2. **Run on Linux and macOS.** The builds are prepared (see below) but not yet run on either OS.
 
+## Display options and resolution (port feature)
+
+The original renders everything for a fixed 1280×720 screen. The port keeps that layout but renders the 3D scene at the window's resolution:
+
+- **Scene target:** `ScreenManager.SceneTarget` is sized to the largest 16:9 area of the back buffer (`RenderWidth` × `RenderHeight`) and is recreated when the window size changes. Other aspect ratios are letterboxed.
+- **G-buffer:** the screen-space targets (color, normal, depth, shading) follow that size (`GameplayScreen.EnsureGBuffer`), so geometry and lighting are rendered at full resolution. The shadow map is light-space and keeps its original 1280×720, which keeps the original shadow look.
+- **2D:** all 2D stays in the original 1280×720 coordinate system.
+  - Code that read `GraphicsDevice.Viewport` for layout, `TitleSafeArea` or `Viewport.Project` now uses `ScreenManager.LogicalViewport`, a fixed 1280×720 viewport.
+  - Every sprite batch that draws into the scene applies `ScreenManager.SpriteScale`.
+  - UI art is still 720p art, scaled.
+
+  Before this change, fullscreen at a non-720p size would have mis-laid the UI. Code running in `Update` saw the back buffer's viewport instead of the scene's.
+- **Options:** **Display** (Windowed/Fullscreen), **Window Size** (1280×720 to 3840×2160) and **VSync** were added to the Game Options menu.
+  - Defaults (Y) resets them too.
+  - Alt+Enter toggles fullscreen, and the game's menu input ignores Enter while Alt is held. The window can also be resized freely.
+  - Fullscreen is FNA's borderless fullscreen at the desktop resolution.
+- **Storage:** the options are stored in `Display.cfg` next to the other settings, not in the original `GlobalSettings.cfg`. The original only loads that after "Press Start" and the storage check, but the window mode is needed before the window is created (`Port/DisplayOptions.cs`).
+- **Checked:** at 1280×720, 1920×1080 windowed and 2560×1440 fullscreen, including toggling mid-level. The HUD markers stay aligned with the goods.
+
 ## Linux and macOS
 
 - **Path separators:** the game's `\\` asset paths are fine. Every load goes through FNA's `TitleContainer`, which normalizes separators: `ContentManager`, external references, and the `AudioEngine`/`WaveBank`/`SoundBank` file names. The few direct `System.IO` uses build paths with `Path.Combine`: stage XML, the map preview `File.Exists`, and saves.

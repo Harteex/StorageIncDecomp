@@ -106,7 +106,7 @@ public class Goods
 			{
 				value = new Rectangle((int)((float)orderGate * 32f), 0, 32, 32);
 			}
-			Viewport viewport = ((DrawableGameComponent)myScreen.ScreenManager).GraphicsDevice.Viewport;
+			Viewport viewport = ScreenManager.LogicalViewport;
 			Vector3 val = viewport.Project(new Vector3(MyPhysicsBody.Position.X, 46f + LiftHeight, MyPhysicsBody.Position.Y), p_Projection, p_View, Matrix.Identity);
 			Rectangle val2 = new Rectangle((int)Math.Round(val.X - 14f), (int)Math.Round(val.Y - 14f), 28, 28);
 			spriteBatch.Draw(myScreen.t_GoodsStatus, val2, (Rectangle?)value, new Color(1f, 1f, 1f, myScreen.timeLine.FlipAlpha));

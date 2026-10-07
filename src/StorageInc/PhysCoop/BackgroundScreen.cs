@@ -20,10 +20,10 @@ internal class BackgroundScreen : GameScreen
 	public override void Draw(GameTime gameTime)
 	{
 		SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-		Viewport viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+		Viewport viewport = ScreenManager.LogicalViewport;
 		Rectangle val = new Rectangle(0, 0, viewport.Width, viewport.Height);
 		byte transitionAlpha = TransitionAlpha;
-		spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Opaque); // XNA 3.0 SpriteBlendMode 0 = None
+		spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Opaque, null, null, null, null, ScreenManager.SpriteScale); // XNA 3.0 SpriteBlendMode 0 = None
 		spriteBatch.Draw(ScreenManager.MenuBackgroundTexture, val, new Color(transitionAlpha, transitionAlpha, transitionAlpha));
 		spriteBatch.End();
 	}

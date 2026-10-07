@@ -813,10 +813,9 @@ public class GameplayScreen : GameScreen
 		reference4 = new VertexPositionTexture(new Vector3(1f, -1f, 0f), new Vector2(1f, 1f));
 		fsVertexDeclaration = VertexPositionTexture.VertexDeclaration;
 		// XNA 3.0 SurfaceFormat 1 = Color, 22 = Single. XNA 4 render targets own their depth buffer.
-		colorTarget = new RenderTarget2D(PhysCoop.graphics.GraphicsDevice, 1280, 720, false, SurfaceFormat.Color, DepthFormat.Depth24);
-		normalTarget = new RenderTarget2D(PhysCoop.graphics.GraphicsDevice, 1280, 720, false, SurfaceFormat.Color, DepthFormat.None);
-		depthTarget = new RenderTarget2D(PhysCoop.graphics.GraphicsDevice, 1280, 720, false, SurfaceFormat.Single, DepthFormat.None);
-		shadingTarget = new RenderTarget2D(PhysCoop.graphics.GraphicsDevice, 1280, 720, false, SurfaceFormat.Color, DepthFormat.None);
+		// Port: the screen-space G-buffer targets follow the scene target's size (see
+		// EnsureGBuffer); the shadow map is light-space, so it keeps the original 1280x720.
+		EnsureGBuffer();
 		shadowTarget = new RenderTarget2D(PhysCoop.graphics.GraphicsDevice, 1280, 720, false, SurfaceFormat.Single, DepthFormat.Depth24);
 		blackImage = new Texture2D(PhysCoop.graphics.GraphicsDevice, 1280, 720, false, SurfaceFormat.Color);
 		effectShadowMap = content.Load<Effect>("ShadowMap");
@@ -1212,7 +1211,7 @@ public class GameplayScreen : GameScreen
 		{
 			ScreenManager.AddTutorialMessage("Welcome to the tutorial.\nThe time will be paused during most steps,\nso take the time you need to complete each step.", Vector2.Zero, 120);
 			ScreenManager.AddTutorialMessage("First, try out the controls of your Truck.\nUse \u009d to drive forward/reverse.\nUse \u00a0 to steer Left/Right.\nPress \u0096 or ¡ to Lift/Drop Goods.", Vector2.Zero, 20);
-			viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+			viewport = ScreenManager.LogicalViewport;
 			Vector3 val = viewport.Project(TutorialMarkedPos, projectionMatrix, viewMatrix, Matrix.Identity);
 			Vector2 arrowTarget2D = new Vector2(val.X, val.Y);
 			ScreenManager.AddTutorialMessage("When you are ready to proceed to the next step,\ndrop any goods here.", arrowTarget2D, 20);
@@ -1228,7 +1227,7 @@ public class GameplayScreen : GameScreen
 					{
 						TutorialShowMark = false;
 						ScreenManager.AddTutorialMessage("The goal of each map is to deliver an\namount of goods shown by this pile of papers.", new Vector2((float)pileDestRect.X, (float)(pileDestRect.Bottom - 20)), 20);
-						viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+						viewport = ScreenManager.LogicalViewport;
 						Vector3 val = viewport.Project(InGates[0].Inside + new Vector3(-48f, 24f, -48f), projectionMatrix, viewMatrix, Matrix.Identity);
 						Vector2 arrowTarget2D = new Vector2(val.X, val.Y);
 						ScreenManager.AddTutorialMessage("Goods arrive through a gate when\nthe red bars are full.\nWatch, as goods will now arrive.", arrowTarget2D, 20);
@@ -1243,16 +1242,16 @@ public class GameplayScreen : GameScreen
 			if (TutorialCompletedArrival)
 			{
 				TutorialDeliverPause = true;
-				viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+				viewport = ScreenManager.LogicalViewport;
 				Vector3 val = viewport.Project(InGates[0].Inside, projectionMatrix, viewMatrix, Matrix.Identity);
 				Vector2 arrowTarget2D = new Vector2(val.X, val.Y);
 				ScreenManager.AddTutorialMessage("If the gate zone is blocked by anything,\neven a truck, when goods arrive, the delivery\nfails, and you lose one life.", arrowTarget2D, 20);
-				viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+				viewport = ScreenManager.LogicalViewport;
 				val = viewport.Project(InGates[0].Inside + new Vector3(-30f, 0f, 46f), projectionMatrix, viewMatrix, Matrix.Identity);
 				arrowTarget2D = new Vector2(val.X, val.Y);
 				ScreenManager.AddTutorialMessage("Red stripes indicate that the gate is now blocked.", arrowTarget2D, 30);
 				ScreenManager.AddTutorialMessage("Each life is shown as a crate.\nWhen they are all gone, the map is failed.", new Vector2(160f, 128f), 20);
-				viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+				viewport = ScreenManager.LogicalViewport;
 				val = viewport.Project(InGates[0].Inside + new Vector3(0f, 48f, 0f), projectionMatrix, viewMatrix, Matrix.Identity);
 				arrowTarget2D = new Vector2(val.X, val.Y);
 				ScreenManager.AddTutorialMessage("A number on a goods indicates how many\nperiods are left before the period,\nduring which the goods must be delivered.\nThis one must be delivered during the next period.", arrowTarget2D, 30);
@@ -1268,12 +1267,12 @@ public class GameplayScreen : GameScreen
 			if (timeLine.PeriodClock > 100f && TutorialSkippedPeriod)
 			{
 				TutorialPeriodPause = true;
-				viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+				viewport = ScreenManager.LogicalViewport;
 				Vector3 val = viewport.Project(new Vector3(goodsList[0].MyPhysicsBody.Position.X, 48f, goodsList[0].MyPhysicsBody.Position.Y), projectionMatrix, viewMatrix, Matrix.Identity);
 				Vector2 arrowTarget2D = new Vector2(val.X, val.Y);
 				ScreenManager.AddTutorialMessage("A letter indicates which gate a goods must\nbe delivered through before the end of\nthe current period.", arrowTarget2D, 20);
 				ScreenManager.AddTutorialMessage("Each failed goods delivery will\ncost you one life.\nThese goods can still be delivered\nto save space, but does not count.", arrowTarget2D, 20);
-				viewport = ((DrawableGameComponent)ScreenManager).GraphicsDevice.Viewport;
+				viewport = ScreenManager.LogicalViewport;
 				val = viewport.Project(new Vector3(goodsList[4].MyPhysicsBody.Position.X, 48f, goodsList[4].MyPhysicsBody.Position.Y), projectionMatrix, viewMatrix, Matrix.Identity);
 				arrowTarget2D = new Vector2(val.X, val.Y);
 				ScreenManager.AddTutorialMessage("Stock goods must be stored until ordered.\nEach new period, there is a chance that it\nwill get a number.", arrowTarget2D, 20);
@@ -1389,8 +1388,29 @@ public class GameplayScreen : GameScreen
 		}
 	}
 
+	/// <summary>Port: (re)creates the screen-space targets at the scene target's resolution.</summary>
+	private void EnsureGBuffer()
+	{
+		int width = ScreenManager.RenderWidth;
+		int height = ScreenManager.RenderHeight;
+		if (colorTarget != null && colorTarget.Width == width && colorTarget.Height == height)
+		{
+			return;
+		}
+		colorTarget?.Dispose();
+		normalTarget?.Dispose();
+		depthTarget?.Dispose();
+		shadingTarget?.Dispose();
+		GraphicsDevice device = PhysCoop.graphics.GraphicsDevice;
+		colorTarget = new RenderTarget2D(device, width, height, false, SurfaceFormat.Color, DepthFormat.Depth24);
+		normalTarget = new RenderTarget2D(device, width, height, false, SurfaceFormat.Color, DepthFormat.None);
+		depthTarget = new RenderTarget2D(device, width, height, false, SurfaceFormat.Single, DepthFormat.None);
+		shadingTarget = new RenderTarget2D(device, width, height, false, SurfaceFormat.Color, DepthFormat.None);
+	}
+
 	public override void Draw(GameTime gameTime)
 	{
+		EnsureGBuffer();
 		Restore_3DSettings();
 		PhysCoop.graphics.GraphicsDevice.SetRenderTargets(colorTarget, normalTarget, depthTarget);
 		PhysCoop.graphics.GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.Black, 1f, 0);
@@ -1402,7 +1422,7 @@ public class GameplayScreen : GameScreen
 		depthMap = depthTarget;
 		shadingMap = GenerateShadingMap();
 		CombineColorAndShading();
-		spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied); // XNA 3.0 SpriteBlendMode 1 = AlphaBlend
+		spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, null, null, null, null, ScreenManager.SpriteScale); // XNA 3.0 SpriteBlendMode 1 = AlphaBlend
 		for (int i = 0; i < goodsList.Count; i++)
 		{
 			goodsList[i].DrawInfo2D(spriteBatch, ref viewMatrix, ref projectionMatrix);
