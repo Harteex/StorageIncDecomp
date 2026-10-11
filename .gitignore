@@ -19,3 +19,6 @@ fnalibs/
 # .NET build output
 bin/
 obj/
+
+# Visual Studio per-user state
+.vs/
