@@ -217,6 +217,18 @@ public class ScreenManager : DrawableGameComponent
 
 	public Matrix SpriteScale { get; private set; } = Matrix.Identity;
 
+	/// <summary>
+	/// Rounds a 1280x720 logical position to the nearest pixel of the actual scene target, for
+	/// sprites that follow moving 3D objects (rounding to logical pixels would step by several
+	/// real pixels above 720p).
+	/// </summary>
+	public static Vector2 SnapToRenderPixel(Vector2 logical, ScreenManager screenManager)
+	{
+		float sx = (float)screenManager.RenderWidth / NativeWidth;
+		float sy = (float)screenManager.RenderHeight / NativeHeight;
+		return new Vector2((float)Math.Round(logical.X * sx) / sx, (float)Math.Round(logical.Y * sy) / sy);
+	}
+
 	public int RenderWidth => sceneTarget.Width;
 
 	public int RenderHeight => sceneTarget.Height;

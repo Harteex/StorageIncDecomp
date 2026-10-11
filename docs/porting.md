@@ -113,6 +113,8 @@ The original renders everything for a fixed 1280×720 screen. The port keeps tha
   - Every sprite batch that draws into the scene applies `ScreenManager.SpriteScale`.
   - UI art is still 720p art, scaled.
 
+  - Sprites that follow moving 3D objects must not be rounded to whole logical pixels. Above 720p that steps by several real pixels and they visibly shake against the smoothly moving object. The goods status badges (`Goods.DrawInfo2D`, originally an integer `Rectangle`) are now drawn at a float position snapped to the real scene-target pixel grid (`ScreenManager.SnapToRenderPixel`). That gives 1-pixel steps like the original had at 720p, and they stay crisp.
+
   Before this change, fullscreen at a non-720p size would have mis-laid the UI. Code running in `Update` saw the back buffer's viewport instead of the scene's.
 - **Options:** **Display** (Windowed/Fullscreen), **Window Size** (1280×720 to 3840×2160) and **VSync** were added to the Game Options menu.
   - Defaults (Y) resets them too.

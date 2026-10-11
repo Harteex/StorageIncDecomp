@@ -108,8 +108,12 @@ public class Goods
 			}
 			Viewport viewport = ScreenManager.LogicalViewport;
 			Vector3 val = viewport.Project(new Vector3(MyPhysicsBody.Position.X, 46f + LiftHeight, MyPhysicsBody.Position.Y), p_Projection, p_View, Matrix.Identity);
-			Rectangle val2 = new Rectangle((int)Math.Round(val.X - 14f), (int)Math.Round(val.Y - 14f), 28, 28);
-			spriteBatch.Draw(myScreen.t_GoodsStatus, val2, (Rectangle?)value, new Color(1f, 1f, 1f, myScreen.timeLine.FlipAlpha));
+			// Port: the original drew into an integer Rectangle (28x28 at the rounded 1280x720
+			// position). With the scene rendered above 720p that snapped the badge to whole logical
+			// pixels (e.g. 2-pixel steps at 1440p), so it shook against the smoothly moving crate.
+			// Same placement and size, but snapped to the real render-target pixel grid instead.
+			Vector2 topLeft = ScreenManager.SnapToRenderPixel(new Vector2(val.X - 14f, val.Y - 14f), myScreen.ScreenManager);
+			spriteBatch.Draw(myScreen.t_GoodsStatus, topLeft, (Rectangle?)value, new Color(1f, 1f, 1f, myScreen.timeLine.FlipAlpha), 0f, Vector2.Zero, 28f / 32f, (SpriteEffects)0, 0f);
 			if (MyPeriod == 0 && MyValue != 0)
 			{
 				spriteBatch.Draw(myScreen.t_OrderOut_Notify, new Vector2(val.X, val.Y), (Rectangle?)new Rectangle(0, 0, myScreen.t_OrderOut_Notify.Width, myScreen.t_OrderOut_Notify.Height), new Color(1f, 1f, 1f, myScreen.timeLine.FlipAlpha), myScreen.timeLine.OrderOutNotifyRotation, new Vector2((float)(myScreen.t_OrderOut_Notify.Width / 2), (float)(myScreen.t_OrderOut_Notify.Height / 2)), 1f, (SpriteEffects)0, 0f);
