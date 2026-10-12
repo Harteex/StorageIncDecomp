@@ -431,6 +431,10 @@ public class GameplayScreen : GameScreen
 	private void RenderShadowMap(SpotLight spotLight)
 	{
 		PhysCoop.graphics.GraphicsDevice.SetRenderTarget(shadowTarget);
+		// Port fix: the original never cleared the shadow map. A new FNA render target starts with
+		// whatever was in that GPU memory (often a previous map's targets), and stale depth then
+		// both survives and blocks the new shadow geometry. Clear to "far" (1) so empty areas are lit.
+		PhysCoop.graphics.GraphicsDevice.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, Color.White, 1f, 0);
 		effectShadowMap.CurrentTechnique = effectShadowMap.Techniques["ShadowMap"];
 		RenderScene(effectShadowMap, ref spotLight.ViewMatrix, ref spotLight.ProjectionMatrix, shadowPass: true);
 		PhysCoop.graphics.GraphicsDevice.SetRenderTarget(ScreenManager.SceneTarget);
@@ -818,6 +822,9 @@ public class GameplayScreen : GameScreen
 		EnsureGBuffer();
 		shadowTarget = new RenderTarget2D(PhysCoop.graphics.GraphicsDevice, 1280, 720, false, SurfaceFormat.Single, DepthFormat.Depth24);
 		blackImage = new Texture2D(PhysCoop.graphics.GraphicsDevice, 1280, 720, false, SurfaceFormat.Color);
+		// Port fix: the original relied on a new texture being zeroed. It is the starting shading for
+		// the first light, so uninitialised memory (a previous map's buffers) washed over the scene.
+		blackImage.SetData(new Color[1280 * 720]);
 		effectShadowMap = content.Load<Effect>("ShadowMap");
 		truck = content.Load<Model>("graphics\\models\\m_Truck");
 		truckTransforms = new Matrix[((ReadOnlyCollection<ModelBone>)(object)truck.Bones).Count];
@@ -993,6 +1000,17 @@ public class GameplayScreen : GameScreen
 		audioEngine.Dispose();
 		physicsSimulator.Dispose();
 		content.Unload();
+		// Port: free this map's GPU resources now instead of leaving them to the finalizers
+		// (they are not ContentManager assets, so content.Unload() doesn't release them).
+		colorTarget?.Dispose();
+		normalTarget?.Dispose();
+		depthTarget?.Dispose();
+		shadingTarget?.Dispose();
+		shadowTarget?.Dispose();
+		blackImage?.Dispose();
+		wallsVertexBuffer?.Dispose();
+		borderVertexBuffer?.Dispose();
+		darkVertexBuffer?.Dispose();
 	}
 
 	public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)

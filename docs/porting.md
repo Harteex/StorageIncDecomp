@@ -89,6 +89,12 @@ Port fixes found at runtime:
 - **First gameplay frame drew with a zero view matrix.** `GameplayScreen` set `viewMatrix` only in `Update` while active, but `Draw` runs first. Inverting the zero matrix gave NaNs (a garbage frame on Xbox, an exception in FNA debug builds). It's now initialised in the constructor with the same camera.
 - **Projection aspect ratio** uses the native 1280×720 instead of the back buffer, so resizing the window doesn't distort the scene.
 - **Crash when goods arrived (Farseer).** `SelectiveSweepCollider.StubComparer` broke ties as `left.Begin ? -1 : 1` without looking at `right`, so two Begin stubs at the same coordinate each compared "less" than the other. .NET CF's sort tolerated that; .NET 8's `List.Sort` can detect it and throws `ArgumentException: … IComparer.Compare() method returns inconsistent results`. New goods spawn aligned with existing ones, which triggered it. The fix keeps the order (by value, Begin before End) but treats same-kind ties as equal. `Arbiter.CompareSeperation` was also made NaN-safe with `CompareTo`.
+- **Washed-out, striped overlay after a few maps.** The original relied on new GPU resources being blank. The shadow map was never cleared (color or depth), and `blackImage`, the starting shading for the first light, was never filled. With FNA/Vulkan a new texture or render target holds whatever was in that memory before. Once earlier maps' buffers had been freed by the garbage collector, a new map inherited them, and their shadow depths and shading washed over the scene with stripes. The map's GPU resources were also never disposed (`UnloadContent` only unloaded content). Fixes:
+  - the shadow map is cleared to far (1.0, so empty areas are lit) each pass;
+  - `blackImage` is filled with zeros;
+  - the render targets, `blackImage` and the wall vertex buffers are disposed when a map ends.
+
+  Reproduced with eight map restarts in a row (3 of 8 corrupted). After the fix all 8 match a healthy frame.
 - **Truck motor at full volume all the time.** FAudio misread the Xbox `.xgs` floats, so the `Volume` RPC never attenuated it. Fixed by converting the files to little-endian (see `docs/audio.md`).
 
 How these were reproduced without a gamepad: a temporary local edit skipped the "gamepad disconnected" pause, then a script sent keys (held ~150 ms, since the game polls key state) to reach a level and let goods arrive.
