@@ -56,7 +56,10 @@ These enums have the same values in 3.0 and 4.0, so the remaining raw casts are 
   - Vertex declarations come from the vertex type, and `Vertices[0].SetSource` became `SetVertexBuffer`.
 - **FrameRateCounter:** `LoadGraphicsContent(bool)` became `LoadContent()`.
 - **`src/StorageInc/Compat/GamerServices.cs`:** a stand-in for XNA GamerServices, which FNA does not provide.
-  - Player One is always signed in. Players 2–4 are signed in while their gamepad is connected, and joining a game this way works as it did on Xbox.
+  - Sign-in works like the Xbox, without the profile picker. Pressing Start signs in the main player. On Game Setup, X toggles sign-in for any other controller. On Xbox, X opened the sign-in Guide, where players also signed out.
+  - The number of signed-in players speeds up the period clock (`TimeLine.Update`: `players * 0.54 + 0.4`), so a connected controller must not count as a player until it signs in.
+  - During a map, pressing Start on a controller that isn't signed in joins it to the game, taking over that player's empty truck. On Xbox, players joined mid-map by signing in from the system Guide; the game already allows it (`allowJoinInGame`).
+  - A sign-in survives a disconnect, so during a map an unplugged controller pauses the game as on Xbox. Game Setup signs out non-main players whose controller is gone, since they can no longer press X.
   - Always the full version: no trial mode, marketplace or Guide UI.
   - Gamer pictures are coloured placeholders.
 - **`src/StorageInc/Compat/Storage.cs`:** XNA 3 `OpenContainer()` and `container.Path` on real directories, stored under `Documents/SavedGames/<title>/AllPlayers` (XDG data dir elsewhere). `TitleLocation` is the executable's directory.

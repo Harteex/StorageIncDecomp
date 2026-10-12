@@ -1,7 +1,9 @@
 // Minimal stand-in for XNA's Microsoft.Xna.Framework.GamerServices, which FNA does not
 // implement. Only the surface Storage Inc uses is provided, with PC-friendly behaviour:
-//   - Player One is always signed in; Players Two..Four are signed in while their
-//     gamepad is connected (SignedIn/SignedOut fire on connect/disconnect).
+//   - Nobody is signed in at startup. The game signs players in and out through
+//     SignedInGamers.SignIn/SignOut (Port changes): pressing Start signs in the main
+//     player, and X on Game Setup toggles the other controllers, standing in for the
+//     Xbox sign-in Guide. Like an Xbox profile, a sign-in survives a gamepad disconnect.
 //   - Always the full version: no trial mode, no marketplace, the Guide is never visible.
 //   - The storage device selector forwards to FNA's StorageDevice selector.
 using System;
@@ -197,17 +199,23 @@ namespace Microsoft.Xna.Framework.GamerServices
 	{
 		public SignedInGamer this[PlayerIndex index] => Items.Find(g => g.PlayerIndex == index);
 
-		internal void Set(PlayerIndex index, bool signedIn)
+		/// <summary>Not in XNA: signs in a local player and raises SignedIn.</summary>
+		public void SignIn(PlayerIndex index)
 		{
-			SignedInGamer existing = this[index];
-			if (signedIn && existing == null)
+			if (this[index] == null)
 			{
 				SignedInGamer gamer = new SignedInGamer(index);
 				Items.Add(gamer);
 				Items.Sort((a, b) => a.PlayerIndex.CompareTo(b.PlayerIndex));
 				SignedInGamer.RaiseSignedIn(gamer);
 			}
-			else if (!signedIn && existing != null)
+		}
+
+		/// <summary>Not in XNA: signs out a local player and raises SignedOut.</summary>
+		public void SignOut(PlayerIndex index)
+		{
+			SignedInGamer existing = this[index];
+			if (existing != null)
 			{
 				Items.Remove(existing);
 				SignedInGamer.RaiseSignedOut(existing);
@@ -215,7 +223,7 @@ namespace Microsoft.Xna.Framework.GamerServices
 		}
 	}
 
-	/// <summary>Drives the fake sign-in state; add it to Game.Components like the XNA original.</summary>
+	/// <summary>Add it to Game.Components like the XNA original; it provides the device for gamer pictures.</summary>
 	public class GamerServicesComponent : GameComponent
 	{
 		internal static GraphicsDevice Device { get; private set; }
@@ -224,19 +232,9 @@ namespace Microsoft.Xna.Framework.GamerServices
 		{
 		}
 
-		public override void Initialize()
-		{
-			base.Initialize();
-			Gamer.SignedInGamers.Set(PlayerIndex.One, true);
-		}
-
 		public override void Update(GameTime gameTime)
 		{
 			Device ??= Game.GraphicsDevice;
-			for (PlayerIndex i = PlayerIndex.Two; i <= PlayerIndex.Four; i++)
-			{
-				Gamer.SignedInGamers.Set(i, GamePad.GetState(i).IsConnected);
-			}
 			base.Update(gameTime);
 		}
 	}

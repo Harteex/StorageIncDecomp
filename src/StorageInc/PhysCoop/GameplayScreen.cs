@@ -1059,6 +1059,17 @@ public class GameplayScreen : GameScreen
 			SilenceTruckMotors();
 			return;
 		}
+		// Port: joining a map in progress worked on Xbox by signing in through the system Guide
+		// (ScreenManager.PlayerSignedIn puts the player in game, allowJoinInGame). On PC, Start
+		// on a controller that isn't signed in joins instead. That press doesn't pause, because
+		// the pause check above only looks at signed-in players and ran first.
+		for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+		{
+			if (Gamer.SignedInGamers[i] == null && input.IsNewButtonPress(Buttons.Start, i, out _))
+			{
+				Gamer.SignedInGamers.SignIn(i);
+			}
+		}
 		for (int i = 0; i < playerCount; i++)
 		{
 			if (liftedGoods[i] != null)

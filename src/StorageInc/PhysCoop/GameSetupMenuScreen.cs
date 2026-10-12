@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Input;
 
 namespace PhysCoop;
 
@@ -102,12 +103,38 @@ internal class GameSetupMenuScreen : MenuScreen
 		ScreenManager.MenuSoundBank.PlayCue("Menu_Select");
 	}
 
+	public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+	{
+		base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+		// Port: an unplugged controller can no longer press X to sign out, so free its slot here.
+		// During a map a disconnect still pauses the game, as on Xbox.
+		for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
+		{
+			if (i != ScreenManager.MainPlayer && Gamer.SignedInGamers[i] != null && !GamePad.GetState(i).IsConnected)
+			{
+				Gamer.SignedInGamers.SignOut(i);
+			}
+		}
+	}
+
 	protected override void OnSelectX(PlayerIndex playerIndex)
 	{
-		if (!ScreenManager.PlayerIsInGame[(int)playerIndex] && !Guide.IsVisible)
+		// Port: the original opened the Xbox sign-in Guide here, and players signed out from the
+		// Guide too. On PC, X toggles the controller that pressed it. The main player stays signed
+		// in, because signing them out sends everyone back to the start menu.
+		if (playerIndex == ScreenManager.MainPlayer)
 		{
-			Guide.ShowSignIn(4, false);
+			return;
 		}
+		if (Gamer.SignedInGamers[playerIndex] == null)
+		{
+			Gamer.SignedInGamers.SignIn(playerIndex);
+		}
+		else
+		{
+			Gamer.SignedInGamers.SignOut(playerIndex);
+		}
+		ScreenManager.MenuSoundBank.PlayCue("Menu_Select");
 	}
 
 	private void PlayGameMenuEntrySelected(object sender, PlayerIndexEventArgs e)
