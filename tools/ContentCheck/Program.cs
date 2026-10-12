@@ -69,6 +69,13 @@ internal sealed class ContentCheck : Game
 				Console.WriteLine($"FAIL  {asset}: {e}");
 			}
 		}
+		// FAudio before 26.10 misparses XACT 3.0 "play wave effect variation" events (it reads the 3.1
+		// frequency/Q fields past the end of the event), which silences every gameplay sound. The cues
+		// still report IsPlaying, so check the version directly.
+		uint faudio = FAudio.FAudioLinkedVersion();
+		bool faudioOk = faudio >= 261000;
+		Failures += faudioOk ? 0 : 1;
+		Console.WriteLine($"{(faudioOk ? "ok  " : "FAIL")}  FAudio version {faudio} (need 261000 or newer; run tools/fetch_fnalibs.py)");
 		CheckAudio("audio/GameSounds.xgs", "audio/Wave Bank.xwb", "audio/Sound Bank.xsb", new[]
 		{
 			"GateClose", "GateOpen", "GoodsDrop", "GoodsSlide", "NewPeriod", "TruckHorn", "TruckLiftDown",

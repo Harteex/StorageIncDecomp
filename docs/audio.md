@@ -35,6 +35,8 @@ Measured through FNA with WASAPI loopback after the fix: `Volume` −96 is silen
 
 At −25 dB the motor still hums quietly while a player is in the game. That's the original design: the game sets `Volume = −25 + |left stick Y| × 24` every frame.
 
+**FAudio 26.10 or newer is required.** Every gameplay sound is a complex sound whose single event is a "play wave effect variation" (event type 4: random pitch ±100 cents and random volume). In XACT 3.0 (content version 43), that event ends with a 1-byte variation flag. Earlier FACT versions parsed it in the 3.1 layout: 4 floats (filter frequency and Q) plus a u16 of flags. That read the next sound's bytes as filter settings and silenced every gameplay sound, motor included, while the cues still reported `IsPlaying`. The menu bank only has simple sounds and was unaffected. Upstream fixed it in FAudio commit 63669ee ("Fix bytecode parsing for version 3.0 wave event variations"), first released in 26.10. The fnalibs daily fetched on 2026-10-07 still contained 26.09. `ContentCheck` fails if the loaded FAudio is older than 26.10. `xact_endian.py` already uses the correct 3.0 layout.
+
 XMA can only be decoded by FAudio through GStreamer/FFmpeg, which the Windows fnalibs don't include. `tools/build_audio.py` therefore rebuilds each wave bank as a **PC wave bank**:
 - Format: `WBND`, little-endian, same version 43 / header 42, 2048-byte alignment, no seek tables.
 - Each entry is decoded once with ffmpeg and stored as 16-bit PCM.

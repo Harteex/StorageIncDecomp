@@ -99,6 +99,7 @@ Port fixes found at runtime:
 
   Reproduced with eight map restarts in a row (3 of 8 corrupted). After the fix all 8 match a healthy frame.
 - **Truck motor at full volume all the time.** FAudio misread the Xbox `.xgs` floats, so the `Volume` RPC never attenuated it. Fixed by converting the files to little-endian (see `docs/audio.md`).
+- **No gameplay sounds at all (motor, goods, gates).** This started after fnalibs was re-fetched for the Linux/macOS builds. The FAudio in use then was 26.09, which misparses XACT 3.0 variation events; the version used before the re-fetch is unknown. Menu sounds and music still worked. Fixed by fetching fnalibs again (FAudio 26.10). `ContentCheck` now checks the FAudio version (see `docs/audio.md`).
 
 How these were reproduced without a gamepad: a temporary local edit skipped the "gamepad disconnected" pause, then a script sent keys (held ~150 ms, since the game polls key state) to reach a level and let goods arrive.
 
