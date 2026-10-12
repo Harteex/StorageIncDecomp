@@ -16,6 +16,9 @@ build/
 # FNA native libraries (tools/fetch_fnalibs.py)
 fnalibs/
 
+# Release builds and archives (tools/package_release.py; contain the game content)
+dist/
+
 # .NET build output
 bin/
 obj/
