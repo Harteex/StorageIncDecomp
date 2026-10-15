@@ -35,6 +35,9 @@ def publish(rid):
          "-p:DebugType=none", "-p:DebugSymbols=false", "-nologo", "-v", "q"],
         check=True,
     )
+    # The non-commercial condition has to travel with every copy of the game.
+    for doc in ("README.md", "LICENSE"):
+        shutil.copy(os.path.join(ROOT, doc), out)
     return out
 
 
