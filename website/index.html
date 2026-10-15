@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Storage Inc for PC</title>
+<meta name="description" content="An unofficial, free port of the Xbox 360 co-op forklift puzzle game Storage Inc to Windows, macOS and Linux, released with the original developer's permission.">
+<meta property="og:title" content="Storage Inc for PC">
+<meta property="og:description" content="Unofficial, free port of the 2009 Xbox 360 co-op puzzle game Storage Inc. 1–4 local players, 100 maps. Windows, macOS and Linux.">
+<meta property="og:image" content="img/shot1.jpg">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+</div>
+
+<header class="hero">
+  <img class="hero-img" src="img/shot1.jpg" alt="Storage Inc title screen: cartoon forklift drivers in a warehouse">
+  <div class="hero-text">
+    <p class="eyebrow">Xbox 360 Indie Game, 2009 &rarr; PC, 2026</p>
+    <h1>Storage Inc</h1>
+    <p class="tagline">Unofficial port of the co-op forklift puzzle game, for Windows, macOS and Linux. Free.</p>
+    <a class="btn" href="#download">Download</a>
+  </div>
+</header>
+
+<main>
+
+<section class="intro wrap">
+  <div>
+    <h2>What's the game about?</h2>
+    <p>You and up to three friends each drive a forklift in a busy warehouse. Goods keep arriving through the gates, and every one of them has a deadline: a number shows how many periods are left before it has to go out, and a letter shows which gate it must leave through.</p>
+    <p>Stack incoming goods out of the way, keep the gates clear, and get orders out in time. Every missed delivery costs a life, and a blocked gate when a delivery arrives costs one too. Lose all your crates and the map is failed.</p>
+    <p>It's easy to learn and the controls are simple, but it gets frantic fast. Shared space is the real puzzle.</p>
+    <p><strong>This is an unofficial port of the Xbox Live Indie Games release. Not made by Stolpskott Studios, but released with the original developer's permission.</strong> See bottom of the page for more information.</p>
+  </div>
+  <ul class="facts">
+    <li><b>1–4</b> local players, co-op</li>
+    <li><b>100</b> maps, all playable in co-op</li>
+    <li><b>4</b> difficulties, from Easy to Master</li>
+    <li>Tutorial included</li>
+  </ul>
+</section>
+
+<section class="wrap">
+  <figure class="shot wide">
+    <a href="img/shot2.jpg"><img src="img/shot2.jpg" alt="A warehouse map seen from above, with four forklifts and numbered goods" loading="lazy"></a>
+    <figcaption>Four forklifts, too many pallets. The numbers count down the periods left before each delivery is due.</figcaption>
+  </figure>
+</section>
+
+<section class="gamepad wrap">
+  <div class="callout">
+    <svg viewBox="0 0 64 40" aria-hidden="true"><path d="M14 4h36c7 0 12 6 13 14l1 12c0 6-6 9-11 4l-6-6H17l-6 6c-5 5-11 2-11-4l1-12C2 10 7 4 14 4z" fill="currentColor"/><g fill="var(--slate-deep)"><rect x="12" y="15" width="12" height="4" rx="1"/><rect x="16" y="11" width="4" height="12" rx="1"/><circle cx="46" cy="12" r="2.6"/><circle cx="51" cy="17" r="2.6"/><circle cx="41" cy="17" r="2.6"/><circle cx="46" cy="22" r="2.6"/></g></svg>
+    <div>
+      <h2>You need a gamepad</h2>
+      <p>Driving the forklifts requires a controller, one per player. Xbox-style controllers work best, since the game shows Xbox buttons. Menus also work with the keyboard (arrow keys, Enter, Esc).</p>
+      <p>Press <b>Start</b> to begin as the main player. On the Game Setup screen, the other players press <b>X</b> to join. During a map, pressing <b>Start</b> on an unused controller joins the game.</p>
+    </div>
+  </div>
+</section>
+
+<section class="improved wrap">
+  <div>
+    <h2>What's new since the Xbox version</h2>
+    <p>The game plays just like the original. The new parts are the display options a PC needs:</p>
+    <ul class="checks">
+      <li><b>Fullscreen or windowed</b>, switchable in Game Options or with <kbd>Alt</kbd>+<kbd>Enter</kbd>.</li>
+      <li><b>Resolution settings.</b> Pick the window size you want instead of the fixed 720p of the Xbox.</li>
+      <li><b>3D at your resolution.</b> The warehouse, forklifts and goods are rendered at full resolution, so they stay sharp on large screens. The 2D artwork (menus, HUD, fonts) is upscaled from the original.</li>
+      <li><b>VSync</b> on or off.</li>
+    </ul>
+    <p class="small">Xbox Live profiles and storage devices are replaced by simple local saves.</p>
+  </div>
+  <figure class="shot">
+    <a href="img/shot3.jpg"><img src="img/shot3.jpg" alt="The Game Options menu with the new Display, Window Size and VSync settings" loading="lazy"></a>
+    <figcaption>The new options sit right in the original Game Options menu.</figcaption>
+  </figure>
+</section>
+
+<section id="download" class="download">
+  <div class="wrap">
+    <h2>Download</h2>
+    <p>Free, and it will always be free. Unpack the archive and run <code>StorageInc</code>. Nothing else to install.</p>
+    <div class="dl-grid">
+      <a class="dl" href="https://github.com/Harteex/StorageIncDecomp/releases/latest/download/StorageInc-win-x64.zip">
+        <span class="os">Windows</span><span class="arch">64-bit &middot; .zip</span>
+      </a>
+      <a class="dl" href="https://github.com/Harteex/StorageIncDecomp/releases/latest/download/StorageInc-osx-arm64.tar.gz">
+        <span class="os">macOS</span><span class="arch">Apple Silicon &middot; .tar.gz</span>
+      </a>
+      <a class="dl" href="https://github.com/Harteex/StorageIncDecomp/releases/latest/download/StorageInc-osx-x64.tar.gz">
+        <span class="os">macOS</span><span class="arch">Intel &middot; .tar.gz</span>
+      </a>
+      <a class="dl" href="https://github.com/Harteex/StorageIncDecomp/releases/latest/download/StorageInc-linux-x64.tar.gz">
+        <span class="os">Linux</span><span class="arch">64-bit &middot; .tar.gz</span>
+      </a>
+    </div>
+    <p class="small">Windows is the most tested. The macOS build is unsigned: if it won't start, run <code>xattr -dr com.apple.quarantine StorageInc</code> on the unpacked folder. All releases are on <a href="https://github.com/Harteex/StorageIncDecomp/releases">GitHub</a>.</p>
+  </div>
+</section>
+
+<section class="support wrap">
+  <h2>Support the original developer</h2>
+  <p>Storage Inc was made by <b>Stolpskott Studios</b>, who kindly allowed this port to be released, on one condition: <b>nobody makes money from it.</b> That means no paid downloads, no ads, and no donations. If you enjoy it, please give back to the developer instead:</p>
+  <div class="games">
+    <a class="game" href="https://store.steampowered.com/app/549390/Storage_Inc_2/">
+      <span class="game-name">Storage Inc 2</span>
+      <span>The sequel, with 100 new warehouses and co-op for up to four players. On Steam.</span>
+    </a>
+    <a class="game" href="https://store.steampowered.com/app/2835310/Sharpshooter/">
+      <span class="game-name">Sharpshooter</span>
+      <span>Their newest game, a Wild West shooter. On Steam.</span>
+    </a>
+  </div>
+</section>
+
+<section class="about wrap">
+  <h2>About this port</h2>
+  <p>The original game was written in C# with Microsoft's XNA. This port decompiles it, converts its Xbox content (textures, models, shaders and audio) to PC formats, and runs it on <a href="https://fna-xna.github.io/">FNA</a>, an open-source reimplementation of XNA. The porting work was done with the help of AI (Claude).</p>
+  <p>The source code and tools are on <a href="https://github.com/Harteex/StorageIncDecomp">GitHub</a>. The repository contains no game content; building from source requires your own copy of the original Xbox 360 game.</p>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><b>Storage Inc</b> &copy; Stolpskott Studios. This is an unofficial, non-commercial fan port, released with permission. It may not be sold or used to make money in any way.</p>
+    <p>Powered by <a href="https://fna-xna.github.io/">FNA</a> &middot; Ported with AI &middot; <a href="https://github.com/Harteex/StorageIncDecomp">Source on GitHub</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
