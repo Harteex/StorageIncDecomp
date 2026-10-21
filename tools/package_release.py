@@ -81,8 +81,18 @@ def pack(out, rid):
     return path
 
 
+def version():
+    info = os.path.join(ROOT, "src", "StorageInc", "Properties", "AssemblyInfo.cs")
+    for line in open(info, encoding="utf-8-sig"):
+        if "AssemblyInformationalVersion" in line:
+            return line.split('"')[1]
+    raise SystemExit("AssemblyInformationalVersion not found in " + info)
+
+
 def main():
     rids = sys.argv[1:] or DEFAULT_RIDS
+    # Archive names carry no version: the website links to releases/latest/download/<name>.
+    print(f"Storage Inc {version()} (tag v{version()})")
     for rid in rids:
         print(f"== {rid}")
         out = publish(rid)

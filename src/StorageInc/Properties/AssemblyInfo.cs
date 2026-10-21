@@ -10,4 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © Stolpskott Studios 2008")]
 [assembly: ComVisible(false)]
 [assembly: Guid("d2049bb7-2a0a-4c44-bb6f-4580d47c64fe")]
-[assembly: AssemblyVersion("1.0.0.0")]
+// Port: the PC release version (the Xbox original was 1.0.0.0). Release tags are v<InformationalVersion>.
+[assembly: AssemblyVersion("1.0.1.0")]
+[assembly: AssemblyFileVersion("1.0.1.0")]
+[assembly: AssemblyInformationalVersion("1.0.1")]
