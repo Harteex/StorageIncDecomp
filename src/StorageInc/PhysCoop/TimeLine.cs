@@ -71,7 +71,7 @@ public class TimeLine
 		case 1:
 			PlayerRatioMod *= 0.9f;
 			break;
-		case 4:
+		case 3:
 			PlayerRatioMod *= 1.15f;
 			break;
 		}
