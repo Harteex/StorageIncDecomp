@@ -17,6 +17,10 @@ public class ProfileSettings
 
 	public bool ArcadeReverseSteering;
 
+	// Port: alternative driving scheme (A forward, B reverse, LB/RB steer). Profiles saved
+	// without this element deserialize with the constructor default.
+	public bool ButtonDriving;
+
 	public ProfileSettings()
 	{
 		ControllerLayout = 0;
@@ -25,5 +29,6 @@ public class ProfileSettings
 		InvertLook = false;
 		GamePadVibration = true;
 		ArcadeReverseSteering = true;
+		ButtonDriving = false;
 	}
 }

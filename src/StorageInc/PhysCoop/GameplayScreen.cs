@@ -1097,58 +1097,74 @@ public class GameplayScreen : GameScreen
 				}
 				continue;
 			}
+			// Port: throttle and steer were read straight from the sticks. The "Buttons" driving
+			// scheme drives with A/B and steers with LB/RB; lifting stays on the triggers and the
+			// horn moves to X.
+			bool buttonDriving = ScreenManager.PersonalSettings[i].ButtonDriving;
+			float throttle;
+			float steer;
+			if (buttonDriving)
+			{
+				throttle = (input.HoldA(i) ? 1f : 0f) - (input.HoldB(i) ? 1f : 0f);
+				steer = (input.HoldRightBumper(i) ? 1f : 0f) - (input.HoldLeftBumper(i) ? 1f : 0f);
+			}
+			else
+			{
+				throttle = input.LeftStick(i).Y;
+				steer = input.RightStick(i).X;
+			}
 			if (gearLockLeft[i])
 			{
-				if (input.RightStick(i).X >= 0f || input.LeftStick(i).Y > 0f)
+				if (steer >= 0f || throttle > 0f)
 				{
 					gearLockLeft[i] = false;
 				}
 			}
-			else if (gearLockRight[i] && (input.RightStick(i).X <= 0f || input.LeftStick(i).Y > 0f))
+			else if (gearLockRight[i] && (steer <= 0f || throttle > 0f))
 			{
 				gearLockRight[i] = false;
 			}
 			if (!gearLockLeft[i] && !gearLockRight[i])
 			{
 				bool flag2 = true;
-				if (input.LeftStick(i).Y >= 0f)
+				if (throttle >= 0f)
 				{
 					gearForward[i] = true;
 				}
-				else if (input.LeftStick(i).Y < 0f)
+				else if (throttle < 0f)
 				{
 					gearForward[i] = false;
-					if (oldStickY[i] < input.LeftStick(i).Y && input.LeftStick(i).Y - oldStickY[i] > 0.01f)
+					if (oldStickY[i] < throttle && throttle - oldStickY[i] > 0.01f)
 					{
 						flag2 = false;
 					}
 				}
 				if (flag2 && !gearForward[i])
 				{
-					if (input.RightStick(i).X > 0f)
+					if (steer > 0f)
 					{
 						gearLockRight[i] = true;
 					}
-					else if (input.RightStick(i).X < 0f)
+					else if (steer < 0f)
 					{
 						gearLockLeft[i] = true;
 					}
 				}
 			}
-			oldStickY[i] = input.LeftStick(i).Y;
+			oldStickY[i] = throttle;
 			bodyPlayer[i].AngularVelocity = 0f;
 			if (gearForward[i] || ScreenManager.PersonalSettings[i].ArcadeReverseSteering)
 			{
-				bodyPlayer[i].ApplyAngularImpulse(input.RightStick(i).X * 500f);
+				bodyPlayer[i].ApplyAngularImpulse(steer * 500f);
 			}
 			else
 			{
-				bodyPlayer[i].ApplyAngularImpulse(0f - input.RightStick(i).X * 500f);
+				bodyPlayer[i].ApplyAngularImpulse(0f - steer * 500f);
 			}
 			float num = MathHelper.WrapAngle(bodyPlayer[i].Rotation);
-			bodyPlayer[i].ApplyForce(new Vector2((float)Math.Cos(num), (float)Math.Sin(num)) * (input.LeftStick(i).Y * 1200f));
-			motorCue[i].SetVariable("Volume", -25f + Math.Abs(input.LeftStick(i).Y) * Math.Abs(24f));
-			if (input.PressedA(i) || (input.LeftTriggerCurrent(i) > 0f && input.LeftTriggerLast(i) == 0f) || (input.RightTriggerCurrent(i) > 0f && input.RightTriggerLast(i) == 0f))
+			bodyPlayer[i].ApplyForce(new Vector2((float)Math.Cos(num), (float)Math.Sin(num)) * (throttle * 1200f));
+			motorCue[i].SetVariable("Volume", -25f + Math.Abs(throttle) * Math.Abs(24f));
+			if ((!buttonDriving && input.PressedA(i)) || (input.LeftTriggerCurrent(i) > 0f && input.LeftTriggerLast(i) == 0f) || (input.RightTriggerCurrent(i) > 0f && input.RightTriggerLast(i) == 0f))
 			{
 				if (liftedGoods[i] != null)
 				{
@@ -1177,7 +1193,7 @@ public class GameplayScreen : GameScreen
 					}
 				}
 			}
-			if (input.PressedB(i))
+			if (buttonDriving ? input.PressedX(i) : input.PressedB(i))
 			{
 				soundBank.PlayCue("TruckHorn");
 			}

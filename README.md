@@ -23,6 +23,7 @@ Controls:
 
 - **Gamepad required for driving.** Menus also work with the keyboard (Enter/Space, Esc, arrow keys).
 - **Joining:** press Start to begin as the main player. On the Game Setup screen, other players press **X** to join or leave. During a map, pressing **Start** on an unused controller joins the game. More players make the game faster, as in the original.
+- **Driving controls:** each player can pick a scheme under Player Settings. **Sticks** is the original: left stick to drive, right stick to steer, A or a trigger to lift or drop goods, and B for the horn. **Buttons** uses A to drive forward, B to reverse and LB/RB to steer, with the triggers to lift or drop goods and X for the horn.
 - **Display:** fullscreen, window size and VSync are under Game Options. **Alt+Enter** toggles fullscreen.
 
 Saves are stored in `Documents/SavedGames/Storage Inc` (Windows), `~/Library/Application Support/Storage Inc` (macOS) or `~/.local/share/Storage Inc` (Linux).

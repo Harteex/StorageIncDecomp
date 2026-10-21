@@ -7,6 +7,8 @@ internal class PlayerSettingsMenuScreen : MenuScreen
 {
 	private MenuEntry reverseRotationMenuEntry;
 
+	private MenuEntry drivingControlsMenuEntry;
+
 	private MenuEntry switchThumbStickMenuEntry;
 
 	private MenuEntry vibrationMenuEntry;
@@ -24,6 +26,7 @@ internal class PlayerSettingsMenuScreen : MenuScreen
 		playerIndex = e;
 		ScreenManager = sm;
 		reverseRotationMenuEntry = new MenuEntry(string.Empty, lockedOnTrial: false, removeOnFullversion: false, reqPrivAllowPurchaseContent: false);
+		drivingControlsMenuEntry = new MenuEntry(string.Empty, lockedOnTrial: false, removeOnFullversion: false, reqPrivAllowPurchaseContent: false);
 		switchThumbStickMenuEntry = new MenuEntry(string.Empty, lockedOnTrial: false, removeOnFullversion: false, reqPrivAllowPurchaseContent: false);
 		vibrationMenuEntry = new MenuEntry(string.Empty, lockedOnTrial: false, removeOnFullversion: false, reqPrivAllowPurchaseContent: false);
 		sensitivityMenuEntry = new MenuEntry(string.Empty, lockedOnTrial: false, removeOnFullversion: false, reqPrivAllowPurchaseContent: false);
@@ -31,6 +34,8 @@ internal class PlayerSettingsMenuScreen : MenuScreen
 		MenuEntry menuEntry = new MenuEntry("Back", lockedOnTrial: false, removeOnFullversion: false, reqPrivAllowPurchaseContent: false);
 		reverseRotationMenuEntry.SelectRight += ReverseRotationMenuEntrySelectRight;
 		reverseRotationMenuEntry.SelectLeft += ReverseRotationMenuEntrySelectLeft;
+		drivingControlsMenuEntry.SelectRight += DrivingControlsMenuEntryToggle;
+		drivingControlsMenuEntry.SelectLeft += DrivingControlsMenuEntryToggle;
 		switchThumbStickMenuEntry.SelectRight += SwitchThumbStickMenuEntrySelectRight;
 		switchThumbStickMenuEntry.SelectLeft += SwitchThumbStickMenuEntrySelectLeft;
 		vibrationMenuEntry.SelectRight += VibrationMenuEntrySelectRight;
@@ -40,6 +45,7 @@ internal class PlayerSettingsMenuScreen : MenuScreen
 		layoutMenuEntry.Selected += LayoutMenuEntrySelected;
 		menuEntry.Selected += OnCancel;
 		MenuEntries.Add(reverseRotationMenuEntry);
+		MenuEntries.Add(drivingControlsMenuEntry);
 		if (sm.UseOptionSensitivity)
 		{
 			MenuEntries.Add(sensitivityMenuEntry);
@@ -67,6 +73,7 @@ internal class PlayerSettingsMenuScreen : MenuScreen
 	private void UpdateVisuals()
 	{
 		reverseRotationMenuEntry.Text = "Arcade Steering: " + (ScreenManager.PersonalSettings[(int)playerIndex].ArcadeReverseSteering ? " On" : "Off");
+		drivingControlsMenuEntry.Text = "Driving Controls: " + (ScreenManager.PersonalSettings[(int)playerIndex].ButtonDriving ? "Buttons" : "Sticks");
 		switchThumbStickMenuEntry.Text = "Switch Thumbsticks: " + (ScreenManager.PersonalSettings[(int)playerIndex].SwitchThumbSticks ? " On" : "Off");
 		vibrationMenuEntry.Text = "Gamepad Vibration: " + (ScreenManager.PersonalSettings[(int)playerIndex].GamePadVibration ? " On" : "Off");
 		sensitivityMenuEntry.Text = "Look Sensitivity: " + ScreenManager.PersonalSettings[(int)playerIndex].Sensitivity;
@@ -112,6 +119,13 @@ internal class PlayerSettingsMenuScreen : MenuScreen
 		{
 			ScreenManager.PersonalSettings[(int)playerIndex].ArcadeReverseSteering = true;
 		}
+		ScreenManager.MenuSoundBank.PlayCue("Menu_Change");
+		UpdateVisuals();
+	}
+
+	private void DrivingControlsMenuEntryToggle(object sender, PlayerIndexEventArgs e)
+	{
+		ScreenManager.PersonalSettings[(int)playerIndex].ButtonDriving = !ScreenManager.PersonalSettings[(int)playerIndex].ButtonDriving;
 		ScreenManager.MenuSoundBank.PlayCue("Menu_Change");
 		UpdateVisuals();
 	}
